@@ -1,0 +1,10 @@
+staticfiles/compiled/
+staticfiles/css/output.css
+*.env
+.venv
+venv
+node_modules/
+__pycache__/
+db.sqlite3
+media/
+notes.md

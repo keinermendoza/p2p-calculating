@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="h-screen grid place-content-center">
+        <h1 class="text-2xl font-semibold mb-3">Por favor coloque sus credenciales aquí</h1>
+        
+        <form class="shadow-xl bg-white form login-form-space p-6 rounded-xl w-full max-w-md mx-auto text-lg" method="post" action="{% url 'core:login' %}">
+            {% csrf_token %}
+            {{ form.as_div }}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+            <button class="text-lg font-medium px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-800 text-white" type="submit">Entrar</button>
+            
+        </form>
+    </div>
+{% endblock content %}
+ 

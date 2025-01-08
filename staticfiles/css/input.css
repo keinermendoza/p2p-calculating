@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.form .errorlist {
+    color: red;
+}
+
+.login-form-space {
+    display: grid;
+    gap: 1rem;
+}
+
+.login-form-space > div {
+    display: grid;
+}
+
+.login-form-space input:not([type="hidden"]) {
+    border: solid 1px rgb(14, 14, 51);
+    border-radius: .5rem;
+    padding: .5rem .75rem ;
+}
