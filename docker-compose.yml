@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        python manage.py migrate
+        gunicorn cambios.wsgi:application --bind 0.0.0.0:8020
+    volumes:
+      - ${PWD}:/usr/src/app
+    ports:
+      - 8020:8020
+    env_file: '.env'

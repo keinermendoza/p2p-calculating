@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <div class="h-screen grid place-content-center">
+    <div class="h-screen grid place-content-center p-4">
         <h1 class="text-2xl font-semibold mb-3">Por favor coloque sus credenciales aquí</h1>
         
         <form class="shadow-xl bg-white form login-form-space p-6 rounded-xl w-full max-w-md mx-auto text-lg" method="post" action="{% url 'core:login' %}">
