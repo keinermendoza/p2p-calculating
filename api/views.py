@@ -8,37 +8,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from core.p2p_api import get_sell_rate_to_ves, get_buy_rate_to_ves
 
-# # searched = "COP" # SI
-# # searched = "BRL" # SI
-# # searched = "CLP" # NO
-# # searched = "VES" # NO
-# # searched = "PEN" # NO
-
-# class MonedasAPIView(APIView):
-#     currencies = ["COP", "BRL", "CLP", "PEN"]
-#     def get(self, request, *args, **kwargs):
-#         initial_time = time.time()
-
-#         sell_responses = []
-#         buy_responses = []
-
-#         for currency in self.currencies:
-
-#             sell_exchange_rate = get_sell_rate_to_ves(currency)
-#             sell_responses.append({currency:sell_exchange_rate})
-            
-#             buy_exchange_rate = get_buy_rate_to_ves(currency, decimal_precision=5)
-#             buy_responses.append({currency:buy_exchange_rate})
-
-#         ending_time = time.time()
-#         response_time =  ending_time - initial_time
-
-#         return Response({
-#             "time": response_time,
-#             "send_money_to_ves": sell_responses,
-#             "recive_money_from_ves": buy_responses,
-#         }, status=status.HTTP_200_OK)
-
 
 def fetch_currency_rate(currency: str, api_call: Callable, **kwargs):
     return {currency: api_call(currency, **kwargs)}
@@ -46,7 +15,9 @@ def fetch_currency_rate(currency: str, api_call: Callable, **kwargs):
 
 class MonedasAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    currencies = ["COP", "BRL", "CLP", "PEN"]
+    # currencies = ["COP", "BRL", "CLP", "PEN"]
+    currencies = ["BRL"]
+
 
     def get(self, request, *args, **kwargs):
         initial_time = time.time()
