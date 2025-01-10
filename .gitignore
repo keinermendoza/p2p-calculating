@@ -9,3 +9,4 @@ db.sqlite3
 media/
 notes.md
 server/
+./static

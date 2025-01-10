@@ -223,7 +223,7 @@ def get_sell_rate_to_ves(
     decimal_getcontext().rounding = ROUND_DOWN
     
     # valor promedio de VENDER un USDT en Bs
-    usdt_ves_sell, _ = calculate_price(
+    usdt_ves_sell, prices_ves = calculate_price(
         "VES",
         decimals=decimals,
         filters=filters_ves,
@@ -238,7 +238,7 @@ def get_sell_rate_to_ves(
     ) 
     
     # valor promedio de COMPRAR un USDT en base_currency
-    origin_currency_usdt_buy, prices = calculate_price(
+    origin_currency_usdt_buy, prices_external = calculate_price(
         origin_currency,
         trade_type="BUY",
         decimals=decimals,
@@ -254,9 +254,11 @@ def get_sell_rate_to_ves(
 
     return {
         "moneda": origin_currency,
-        # "precio de referencia venta VES (se repite)": usdt_ves_sell,
-        # "precio de venta con margen VES (se repite)": discounted_usdt_ves_sell,
-        "primeras 10 ordenes de compra sin aunncios": prices,
+        "ref": usdt_ves_sell,
+        "ref_calc": discounted_usdt_ves_sell,
+        "ref_list": prices_ves,
+
+        "primeras 10 ordenes de venta sin aunncios": prices_external,
         f"precio de referencia compra de USDT en {origin_currency}": origin_currency_usdt_buy,
         f"tasa de cambio final de {origin_currency} a VES": origin_currency_ves_sell,
         "Calculo usó filtros": "Si, para ambas monedas" if filters_origin_currency else "No, solo para VES"
@@ -284,7 +286,7 @@ def get_buy_rate_to_ves(
     decimal_getcontext().rounding = ROUND_DOWN
     
     # valor promedio de COMPRAR un USDT en Bs
-    usdt_ves_buy, _ = calculate_price(
+    usdt_ves_buy, prices_ves = calculate_price(
         "VES",
         trade_type="BUY",
         decimals=decimals,
@@ -300,7 +302,7 @@ def get_buy_rate_to_ves(
     ) 
     
     # valor promedio de VENDER un USDT en destination_currency
-    destination_currency_usdt_sell, prices = calculate_price(
+    destination_currency_usdt_sell, prices_external = calculate_price(
         destination_currency,
         decimals=decimals,
         filters=filters_destination_currency,
@@ -316,7 +318,11 @@ def get_buy_rate_to_ves(
 
     return {
         "moneda": destination_currency,
-        "primeras 10 ordenes de venta sin aunncios": prices,
+        "ref": usdt_ves_buy,
+        "ref_calc": usdt_ves_buy_charged,
+        "ref_list": prices_ves,
+
+        "primeras 10 ordenes de venta sin aunncios": prices_external,
         f"precio de referencia venta de USDT en {destination_currency}": destination_currency_usdt_sell,
         f"tasa de cambio final de VES a {destination_currency} ": destination_currency_ves_buy,
         "Calculo usó filtros": "Si, para ambas monedas" if filters_destination_currency else "No, solo para VES"
