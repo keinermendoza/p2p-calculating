@@ -15,8 +15,17 @@ def fetch_currency_rate(currency: str, api_call: Callable, **kwargs):
 
 class MonedasAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    # currencies = ["COP", "BRL", "CLP", "PEN"]
-    currencies = ["BRL"]
+    currencies = ["COP", "BRL", "CLP", "PEN"]
+
+    currency_filters = {
+        "BRL": {
+            "payTypes": ["Pix"],
+            "transAmount": 100
+        },
+        "COP": {},
+        "CLP": {},
+        "PEN": {}
+    }
 
 
     def get(self, request, *args, **kwargs):
@@ -24,8 +33,10 @@ class MonedasAPIView(APIView):
         with ThreadPoolExecutor() as executor:
             venta_monedas_bolivares = list(
                 executor.map(
-                    lambda currency: fetch_currency_rate(
-                        currency, get_sell_rate_to_ves, decimal_precision=4
+                    lambda currency: get_sell_rate_to_ves(
+                        currency,
+                        decimals=4,
+                        filters_origin_currency=self.currency_filters[currency]
                     ),
                     self.currencies,
                 )
@@ -34,8 +45,10 @@ class MonedasAPIView(APIView):
         with ThreadPoolExecutor() as executor2:
             compra_monedas_bolivares = list(
                 executor2.map(
-                    lambda currency: fetch_currency_rate(
-                        currency, get_buy_rate_to_ves, decimal_precision=4
+                    lambda currency: get_buy_rate_to_ves(
+                        currency,
+                        decimals=4,
+                        filters_destination_currency=self.currency_filters[currency]
                     ),
                     self.currencies,
                 )
