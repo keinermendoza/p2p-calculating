@@ -12,3 +12,4 @@ services:
     ports:
       - 8020:8020
     env_file: '.env'
+

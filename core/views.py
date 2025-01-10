@@ -4,11 +4,10 @@ from django.urls import reverse_lazy
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
+    View,
     TemplateView
 )
 
-class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = "core/dashboard.html"
 
 from django.contrib.auth.views import (
     LoginView as BaseLoginView,
@@ -17,6 +16,16 @@ from django.contrib.auth.views import (
 from .forms import (
     LoginUserForm,
 )
+
+class CustomRedirectView(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return HttpResponseRedirect(reverse_lazy('api:monedas'))
+        return HttpResponseRedirect(reverse_lazy('core:login'))
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "core/dashboard.html"
+
 
 class LoginView(BaseLoginView):
     form_class = LoginUserForm 
