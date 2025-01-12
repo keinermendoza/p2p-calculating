@@ -1,17 +1,13 @@
-from typing import List, Dict, Tuple
-import json
+from typing import List, Dict, Tuple, Callable
 from decimal import (
     getcontext as decimal_getcontext,  
     Decimal,
     ROUND_DOWN
 ) 
 
-import pprint
-from binance.client import Client
-from django.conf import settings
 import requests
-from statistics import mean
 from copy import copy
+from concurrent.futures import ThreadPoolExecutor
 
 # for know about decimal.getcontext
 # https://stackoverflow.com/questions/8595973/truncate-to-three-decimals-in-python
@@ -46,7 +42,7 @@ BASIC_PAYLOAD = {
     "page": 1,
     "rows": 10,
     # "transAmount": 5000,
-    "tradeType": "SELL",
+    # "tradeType": "SELL",
     # "asset": "USDT",
     "countries": [],
     "proMerchantAds": False,
@@ -63,38 +59,12 @@ BASIC_PAYLOAD = {
     ]
 }
 
-
-# {
-#     "fiat": "VES",
-#     "page": 1,
-#     "rows": 10,
-#     "transAmount": 5000,
-#     "tradeType": "SELL",
-#     "asset": "USDT",
-#     "countries": [],
-#     "proMerchantAds": false,
-#     "shieldMerchantAds": false,
-#     "filterType": "all",
-#     "periods": [],
-#     "additionalKycVerifyFilter": 0,
-#     "publisherType": "merchant",
-#     "payTypes": [
-#         "SpecificBank",
-#         "BANK"
-#     ],
-#     "classifies": [
-#         "mass",
-#         "profession",
-#         "fiat_trade"
-#     ]
-# }
-
 def get_prices(
     currency: str,
     trade_type: str = "SELL",
     asset: str = "USDT",
     **kwargs
-) -> List[float]:
+) -> Dict[str, List[Decimal]]:
     
     """make request to p2p api and returns price list
     extra arguments are pass to the payload
@@ -108,62 +78,69 @@ def get_prices(
         **kwargs
     })
 
-    print(payload)
+    # print(payload)
 
     response = requests.post(SEARCH_API, headers=HEADERS, json=payload)
     data = response.json()
 
-    return  [float(adv["adv"]["price"]) for adv in data["data"]]
+    return {
+        currency:[Decimal(adv["adv"]["price"]) for adv in data["data"]]
+    }
 
-
-def calculate_price(
-    currency: str,
-    trade_type: str = "SELL",
-    asset: str = "USDT",
-    decimals: int = 3,
-    use_adv_position: int | None = None,
-    avg_exclude_border_pos: int | None = None,
-    filters: dict = {}
+def get_positional_price(
+    prices: List[Decimal],
+    price_position: int = 3,
+    decimals: int = 2
 ) -> Decimal:
+    return round(Decimal(prices[price_position - 1]), decimals)
+
+
+
+def get_exchange_rate(
+    origin_currency_prices: List[Decimal],
+    destination_currency_prices: List[Decimal],
+    selection_method: Callable,
+    margin_calculation_method: Callable,
+
+    apply_margin_calculation_to_destination: bool = True,
+    destination_selection_params: dict = {},
+    origin_selection_params: dict = {},
+    margin_calculation_params: dict = {},
+    decimals: int = 3,
+) -> dict:
     
-    """returns average price for currency trade_type. 
-    can exclude border positions (min and max prices).
-    also can return especific adv position price instead if use_adv_position is provided.
-
-    uses de get_prices api call for retrive de price list,
-    extra arguments are passed to the get_prices api call
-
-    useful filters
-
-    payTypes: List[str], # ["BANK", "Banesco", "PagoMovil", "SpecificBanck"]
-    transAmount: str | int,
-    
+    """executes selection and margin calculation callback functions
+    calculates the rate and returns it in a dict with the selected prices 
+    for both currencies and the calculation amount 
     """
 
-    prices = get_prices(
-        currency=currency,
-        trade_type=trade_type,
-        asset=asset,
-        **filters
-    )
-    print(currency, trade_type, prices)
-
-    # if use_adv_position:
-    return [
-        round(Decimal(prices[use_adv_position - 1]), decimals),
-        prices
-    ]
+    decimal_getcontext().rounding = ROUND_DOWN
     
-    # else:
-    #     if avg_exclude_border_pos:
-    #         index = avg_exclude_border_pos -1 
-    #         prices = prices[index:-index]
+    origin_reference_price = selection_method(origin_currency_prices, **origin_selection_params)
+    destination_reference_price = selection_method(destination_currency_prices, **destination_selection_params)
 
+    if apply_margin_calculation_to_destination:
+        calculated_price = margin_calculation_method(destination_reference_price, **margin_calculation_params)
 
-    #     avg_price = Decimal(mean(prices))
-    #     return round(avg_price, decimals)
+        rate = round(
+            calculated_price / origin_reference_price,
+            decimals
+        )
 
+    else:
+        calculated_price = margin_calculation_method(origin_reference_price, **margin_calculation_params)
 
+        rate = round(
+            destination_reference_price / calculated_price,
+            decimals
+        )
+
+    return {
+        "rate": rate,
+        "calculated_price": calculated_price,
+        "destination_reference_price": destination_reference_price,
+        "origin_reference_price": origin_reference_price,
+    }
 
 def get_descount_using_porcentage(
     amount: Decimal,
@@ -201,132 +178,141 @@ def charge_margin_profit_using_porcentage(
     decimal_getcontext().rounding = ROUND_DOWN
     return round(Decimal(price_with_decimals), decimals)
 
-
-def get_sell_rate_to_ves(
+def get_rate_to_ves(
     origin_currency: str,
+    origin_currency_prices: List[Decimal],
+    destination_currency_prices: List[Decimal],
+    selection_method: Callable = get_positional_price,
+    margin_calculation_method: Callable = get_descount_using_porcentage,
+    destination_currency: str = "VES",
+    margin_calculation_params: dict = {},
+
+    apply_margin_calculation_to_destination: bool = True,
+    destination_selection_params: dict = {},
+    origin_selection_params: dict = {},
     decimals: int = 3,
-    profit_margin: float = 0.05,
-    filters_origin_currency: dict = {},
-
-    filters_ves: dict = {
-        "payTypes":["BANK", "SpecificBanck"],
-        "transAmount" :5000
-    },
-) -> dict[str, str | Decimal]:
+) -> dict:
     
-    """useful filters
-
-    payTypes: List[str], # ["BANK", "Banesco", "PagoMovil", "SpecificBanck"]
-    transAmount: str | int,
+    """Implementation of get_exchange_rate for Send money to VES
     """
 
-    decimal_getcontext().rounding = ROUND_DOWN
-    
-    # valor promedio de VENDER un USDT en Bs
-    usdt_ves_sell, prices_ves = calculate_price(
-        "VES",
-        decimals=decimals,
-        filters=filters_ves,
-        use_adv_position=3
-    )
-
-    # valor de descontado VENDER de un USDT en Bs
-    discounted_usdt_ves_sell = get_descount_using_porcentage(
-        usdt_ves_sell,
-        profit_margin,
+    calculation: dict = get_exchange_rate(
+        origin_currency_prices=origin_currency_prices,
+        destination_currency_prices=destination_currency_prices,
+        selection_method=selection_method,
+        margin_calculation_method=margin_calculation_method,
+        margin_calculation_params=margin_calculation_params,
+        apply_margin_calculation_to_destination=apply_margin_calculation_to_destination,
+        destination_selection_params=destination_selection_params,
+        origin_selection_params=origin_selection_params,
         decimals=decimals
-    ) 
-    
-    # valor promedio de COMPRAR un USDT en base_currency
-    origin_currency_usdt_buy, prices_external = calculate_price(
-        origin_currency,
-        trade_type="BUY",
-        decimals=decimals,
-        filters=filters_origin_currency,
-        use_adv_position=3
-    ) 
-    
-    # valor de cambio de base_currency a Bolivares
-    origin_currency_ves_sell = round(
-        discounted_usdt_ves_sell / origin_currency_usdt_buy,
-        decimals
     )
-
+    
     return {
-        "moneda": origin_currency,
-        "ref": usdt_ves_sell,
-        "ref_calc": discounted_usdt_ves_sell,
-        "ref_list": prices_ves,
-
-        "primeras 10 ordenes de venta sin aunncios": prices_external,
-        f"precio de referencia compra de USDT en {origin_currency}": origin_currency_usdt_buy,
-        f"tasa de cambio final de {origin_currency} a VES": origin_currency_ves_sell,
-        "Calculo usó filtros": "Si, para ambas monedas" if filters_origin_currency else "No, solo para VES"
+        "origin_currency": origin_currency,
+        "destination_currency": destination_currency,
+        "origin_prices": origin_currency_prices[:5],
+        "origin_reference_price": calculation["origin_reference_price"],
+        "destination_prices": destination_currency_prices[:5],
+        "destination_reference_price": calculation["destination_reference_price"],
+        "calculated_price": calculation["calculated_price"],
+        "rate": calculation["rate"],
     }
 
-
-
-def get_buy_rate_to_ves(
+def get_rate_from_ves(
     destination_currency: str,
-    decimals: int = 3,
-    profit_margin: float = 0.05,
-    filters_destination_currency: dict = {},
-    filters_ves: dict = {
-        "payTypes":["BANK", "SpecificBanck"],
-        "transAmount" :5000
-    },
-) -> dict[str, str | Decimal]:
-    
-    """useful filters
+    origin_currency_prices: List[Decimal],
+    destination_currency_prices: List[Decimal],
 
-    payTypes: List[str], # ["BANK", "Banesco", "PagoMovil", "SpecificBanck"]
-    transAmount: str | int,
+    selection_method: Callable = get_positional_price,
+    margin_calculation_method: Callable = charge_margin_profit_using_porcentage,
+    margin_calculation_params: dict = {},
+
+    origin_currency: str = "VES",
+
+    apply_margin_calculation_to_destination: bool = False,
+    destination_selection_params: dict = {},
+    origin_selection_params: dict = {},
+    decimals: int = 3,
+) -> dict:
+    
+    """Implementation of get_exchange_rate for Send money to VES
     """
 
-    decimal_getcontext().rounding = ROUND_DOWN
-    
-    # valor promedio de COMPRAR un USDT en Bs
-    usdt_ves_buy, prices_ves = calculate_price(
-        "VES",
-        trade_type="BUY",
-        decimals=decimals,
-        filters=filters_ves,
-        use_adv_position=3
-    )
-
-    # valor recargado de COMPRAR de un USDT en Bs
-    usdt_ves_buy_charged = charge_margin_profit_using_porcentage(
-        usdt_ves_buy,
-        profit_margin,
+    calculation: dict = get_exchange_rate(
+        origin_currency_prices=origin_currency_prices,
+        destination_currency_prices=destination_currency_prices,
+        selection_method=selection_method,
+        margin_calculation_method=margin_calculation_method,
+        margin_calculation_params=margin_calculation_params,
+        apply_margin_calculation_to_destination=apply_margin_calculation_to_destination,
+        destination_selection_params=destination_selection_params,
+        origin_selection_params=origin_selection_params,
         decimals=decimals
-    ) 
-    
-    # valor promedio de VENDER un USDT en destination_currency
-    destination_currency_usdt_sell, prices_external = calculate_price(
-        destination_currency,
-        decimals=decimals,
-        filters=filters_destination_currency,
-        use_adv_position=3
-
-    ) 
-    
-    # valor de cambio de destination_currency a Bolivares
-    destination_currency_ves_buy = round(
-        destination_currency_usdt_sell / usdt_ves_buy_charged,
-        decimals
     )
-
+    
     return {
-        "moneda": destination_currency,
-        "ref": usdt_ves_buy,
-        "ref_calc": usdt_ves_buy_charged,
-        "ref_list": prices_ves,
-
-        "primeras 10 ordenes de venta sin aunncios": prices_external,
-        f"precio de referencia venta de USDT en {destination_currency}": destination_currency_usdt_sell,
-        f"tasa de cambio final de VES a {destination_currency} ": destination_currency_ves_buy,
-        "Calculo usó filtros": "Si, para ambas monedas" if filters_destination_currency else "No, solo para VES"
+        "origin_currency": origin_currency,
+        "destination_currency": destination_currency,
+        "origin_prices": origin_currency_prices[:5],
+        "origin_reference_price": calculation["origin_reference_price"],
+        "destination_prices": destination_currency_prices[:5],
+        "destination_reference_price": calculation["destination_reference_price"],
+        "calculated_price": calculation["calculated_price"],
+        "rate": calculation["rate"],
     }
 
-#  f"precio de referencia compra de USDT en {origin_currency}": origin_currency_usdt_buy,
-#         f"tasa de cambio final de {origin_currency} a VES": origin_currency_ves_sell,
+
+def fetch_prices_thread_pool(operations, trade_type="SELL"):
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        prices_list = list(
+            executor.map(
+                lambda currency: get_prices(
+                    currency["code"],
+                    trade_type=trade_type,
+                    **currency["filters"]
+                ),
+                operations   
+            )
+        )
+
+        return {k: v for d in prices_list for k, v in d.items()}
+
+def get_multiple_rates_from_ves(
+    ves_prices: List[Decimal],
+    sell_prices: Dict[str, Decimal]
+) -> List[dict]:
+    """Implementation of get_rate_from_ves for multiple currencies
+    sell_prices can include VES prices, this will be safetly ignored
+    """
+    rates_from_ves = []
+    for code in sell_prices:
+        if code != "VES":
+            rates_from_ves.append(
+                get_rate_from_ves(
+                    destination_currency=code,
+                    origin_currency_prices=ves_prices,
+                    destination_currency_prices=sell_prices[code]
+                )
+            )
+    return rates_from_ves
+
+def get_multiple_rates_to_ves(
+    ves_prices: List[Decimal],
+    buy_prices: Dict[str, Decimal]
+) -> List[dict]:
+    """Implementation of get_rate_to_ves for multiple currencies
+    buy_prices can include VES prices, this will be safetly ignored
+    """
+    rates_to_ves = []
+    for code in buy_prices:
+        if code != "VES":
+            rates_to_ves.append(
+                get_rate_to_ves(
+                    origin_currency=code,
+                    origin_currency_prices=buy_prices[code],
+                    destination_currency_prices=ves_prices
+                )
+            )
+    return rates_to_ves
+

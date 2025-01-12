@@ -1,7 +1,12 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from core.p2p_api import (
-    get_buy_rate_to_ves,
-    get_sell_rate_to_ves,
-    calculate_price
+    get_rate_to_ves,
+    get_rate_from_ves,
+    get_multiple_rates_from_ves,
+    get_multiple_rates_to_ves,
+    get_prices,
+    fetch_prices_thread_pool
 )
 
 def run():
@@ -55,16 +60,39 @@ def run():
     #     )
     # print("precio promedio USDT en Bs a", VES_SELL_3)
 
-
-
-    VES_SELL = get_sell_rate_to_ves("BRL", filters_origin_currency={
-        "payTypes": ["Pix"],
-        "transAmount": 100
-    })
-
-    print("precio promedio USDT en Bs a", VES_SELL)
+    
+    operations = [
+        {
+            "code": "BRL",
+            "filters": {
+                "payTypes": ["Pix"],
+                "transAmount": 100
+            }
+            
+        },
+        {
+            "code": "VES",
+            "filters": {
+                "transAmount":  5000,
+                "payTypes": ["BANK", "SpecificBanck"],
+            }
+        },
+        {
+            "code": "PEN",
+            "filters": {}
+        },
+    ]
 
     
-    # print("precio de 4 posicion vender USDT en Bs a", VES_SELL_2)
-    # print("precio de 4 posicion sin filtros vender USDT en Bs a", VES_SELL_3)
+    sell_prices = fetch_prices_thread_pool(operations)
+    buy_prices = fetch_prices_thread_pool(operations, trade_type="BUY")
+
+    rates_to_ves = get_multiple_rates_to_ves(ves_prices=sell_prices["VES"], buy_prices=buy_prices)
+    rates_from_ves = get_multiple_rates_from_ves(ves_prices=buy_prices["VES"], sell_prices=sell_prices)
+
+    # print("sell_prices", sell_prices)
+    # print("buy_prices", buy_prices)
+
+    print("rates_to_ves", rates_to_ves)
+    # print("rates_from_ves", rates_from_ves)
 
