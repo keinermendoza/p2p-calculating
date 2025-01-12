@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from django.contrib.auth.forms import (
     UserCreationForm,
@@ -11,6 +12,7 @@ from django.contrib.auth.forms import (
 from django import forms
 from .models import (
     User,
+    ProfitExpectedMargin
 )
 
 # default admin panel
@@ -63,3 +65,16 @@ class UserNewForm(forms.ModelForm):
         user.set_password(password)
         user.save()
         return user
+
+
+class ProfitExpectedMarginAdminForm(forms.ModelForm):
+    class Meta:
+        model = ProfitExpectedMargin
+        fields = '__all__'
+
+    def clean(self):
+        max_instancias = 1
+        if self.instance.pk is None:
+            if ProfitExpectedMargin.objects.count() >= max_instancias:
+                raise ValidationError(f"Solo se permiten {max_instancias} instancias de este modelo.")
+        return super().clean()

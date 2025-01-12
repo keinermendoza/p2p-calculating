@@ -5,11 +5,14 @@ from django.utils.html import format_html
 
 from .models import (
     User,
+    Currency,
+    ProfitExpectedMargin
 )
 
 from .forms import (
     CustomUserChangeForm,
-    CustomUserCreationForm
+    CustomUserCreationForm,
+    ProfitExpectedMarginAdminForm
 )
 
 @admin.register(User)
@@ -25,3 +28,14 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
     
+@admin.register(Currency)
+class CurrencyAdmin(admin.ModelAdmin):
+    list_display = ["name", "code", "created"]
+
+
+@admin.register(ProfitExpectedMargin)
+class ProfitExpectedMarginAdmin(admin.ModelAdmin):
+    form = ProfitExpectedMarginAdminForm
+    list_display = ["porcentage", "created", "updated"]
+
+

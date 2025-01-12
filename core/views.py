@@ -20,7 +20,7 @@ from .forms import (
 class CustomRedirectView(View):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse_lazy('api:monedas'))
+            return HttpResponseRedirect(reverse_lazy('api:exchanges'))
         return HttpResponseRedirect(reverse_lazy('core:login'))
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -30,7 +30,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 class LoginView(BaseLoginView):
     form_class = LoginUserForm 
     template_name = "core/login.html"
-    next_page = reverse_lazy('api:monedas')
+    next_page = reverse_lazy('api:exchanges')
 
 def simple_logout(request):
     logout(request)

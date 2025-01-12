@@ -1,9 +1,5 @@
 from typing import List, Dict, Tuple, Callable
-from decimal import (
-    getcontext as decimal_getcontext,  
-    Decimal,
-    ROUND_DOWN
-) 
+from decimal import getcontext as decimal_getcontext, Decimal, ROUND_DOWN
 
 import requests
 from copy import copy
@@ -12,8 +8,6 @@ from concurrent.futures import ThreadPoolExecutor
 # for know about decimal.getcontext
 # https://stackoverflow.com/questions/8595973/truncate-to-three-decimals-in-python
 # https://docs.python.org/3/library/decimal.html#context-objects
-
-
 
 
 HEADERS = {
@@ -28,10 +22,10 @@ HEADERS = {
     "Origin": "https://p2p.binance.com",
     "Pragma": "no-cache",
     "TE": "Trailers",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0",
 }
 
-SEARCH_API = 'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search'
+SEARCH_API = "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search"
 
 
 # https://stackoverflow.com/questions/67793326/api-binance-p2p-i-only-access-a-part-only-the-buy-and-not-all-of-it-buy-and-s
@@ -52,48 +46,34 @@ BASIC_PAYLOAD = {
     "additionalKycVerifyFilter": 0,
     "publisherType": "merchant",
     "payTypes": [],
-    "classifies": [
-        "mass",
-        "profession",
-        "fiat_trade"
-    ]
+    "classifies": ["mass", "profession", "fiat_trade"],
 }
 
+
 def get_prices(
-    currency: str,
-    trade_type: str = "SELL",
-    asset: str = "USDT",
-    **kwargs
+    currency: str, trade_type: str = "SELL", asset: str = "USDT", **kwargs
 ) -> Dict[str, List[Decimal]]:
-    
     """make request to p2p api and returns price list
     extra arguments are pass to the payload
     """
-    
+
     payload = copy(BASIC_PAYLOAD)
-    payload.update({
-        "tradeType": trade_type,
-        "fiat": currency,
-        "asset": asset,
-        **kwargs
-    })
+    payload.update(
+        {"tradeType": trade_type, "fiat": currency, "asset": asset, **kwargs}
+    )
 
     # print(payload)
 
     response = requests.post(SEARCH_API, headers=HEADERS, json=payload)
     data = response.json()
 
-    return {
-        currency:[Decimal(adv["adv"]["price"]) for adv in data["data"]]
-    }
+    return {currency: [Decimal(adv["adv"]["price"]) for adv in data["data"]]}
+
 
 def get_positional_price(
-    prices: List[Decimal],
-    price_position: int = 3,
-    decimals: int = 2
+    prices: List[Decimal], price_position: int = 3, decimals: int = 2
 ) -> Decimal:
     return round(Decimal(prices[price_position - 1]), decimals)
-
 
 
 def get_exchange_rate(
@@ -101,39 +81,39 @@ def get_exchange_rate(
     destination_currency_prices: List[Decimal],
     selection_method: Callable,
     margin_calculation_method: Callable,
-
     apply_margin_calculation_to_destination: bool = True,
     destination_selection_params: dict = {},
     origin_selection_params: dict = {},
     margin_calculation_params: dict = {},
     decimals: int = 3,
 ) -> dict:
-    
     """executes selection and margin calculation callback functions
-    calculates the rate and returns it in a dict with the selected prices 
-    for both currencies and the calculation amount 
+    calculates the rate and returns it in a dict with the selected prices
+    for both currencies and the calculation amount
     """
 
     decimal_getcontext().rounding = ROUND_DOWN
-    
-    origin_reference_price = selection_method(origin_currency_prices, **origin_selection_params)
-    destination_reference_price = selection_method(destination_currency_prices, **destination_selection_params)
+
+    origin_reference_price = selection_method(
+        origin_currency_prices, **origin_selection_params
+    )
+    destination_reference_price = selection_method(
+        destination_currency_prices, **destination_selection_params
+    )
 
     if apply_margin_calculation_to_destination:
-        calculated_price = margin_calculation_method(destination_reference_price, **margin_calculation_params)
-
-        rate = round(
-            calculated_price / origin_reference_price,
-            decimals
+        calculated_price = margin_calculation_method(
+            destination_reference_price, **margin_calculation_params
         )
+
+        rate = round(calculated_price / origin_reference_price, decimals)
 
     else:
-        calculated_price = margin_calculation_method(origin_reference_price, **margin_calculation_params)
-
-        rate = round(
-            destination_reference_price / calculated_price,
-            decimals
+        calculated_price = margin_calculation_method(
+            origin_reference_price, **margin_calculation_params
         )
+
+        rate = round(destination_reference_price / calculated_price, decimals)
 
     return {
         "rate": rate,
@@ -142,41 +122,38 @@ def get_exchange_rate(
         "origin_reference_price": origin_reference_price,
     }
 
+
 def get_descount_using_porcentage(
-    amount: Decimal,
-    descount :float = 0.05,
-    decimals: int = 2
+    amount: Decimal, profit_margin: float | Decimal = 0.05, decimals: int = 2
 ) -> Decimal:
-    
-    """returns the desconted price for currency using descount
-    
-    descount: number between 0.01 and 1
-    decimal: precision decimals. will truncate extra decimals 
+    """returns the desconted price for currency using profit_margin
+
+    profit_margin: number between 0.01 and 1
+    decimal: precision decimals. will truncate extra decimals
     """
 
     full_price = 1
-    price_with_decimals =  amount * Decimal(full_price - descount)
-     
+    price_with_decimals = amount * Decimal(full_price - profit_margin)
+
     decimal_getcontext().rounding = ROUND_DOWN
     return round(Decimal(price_with_decimals), decimals)
+
 
 def charge_margin_profit_using_porcentage(
-    amount: Decimal,
-    margin_profit :float = 0.05,
-    decimals: int = 2
+    amount: Decimal, profit_margin: float | Decimal = 0.05, decimals: int = 2
 ) -> Decimal:
-    
-    """returns the desconted price for currency using descount
-    
-    descount: number between 0.01 and 1
-    decimal: precision decimals. will truncate extra decimals 
+    """returns the desconted price for currency using profit_margin
+
+    profit_margin: number between 0.01 and 1
+    decimal: precision decimals. will truncate extra decimals
     """
 
     full_price = 1
-    price_with_decimals =  amount * Decimal(full_price + margin_profit)
-     
+    price_with_decimals = amount * Decimal(full_price + profit_margin)
+
     decimal_getcontext().rounding = ROUND_DOWN
     return round(Decimal(price_with_decimals), decimals)
+
 
 def get_rate_to_ves(
     origin_currency: str,
@@ -186,15 +163,12 @@ def get_rate_to_ves(
     margin_calculation_method: Callable = get_descount_using_porcentage,
     destination_currency: str = "VES",
     margin_calculation_params: dict = {},
-
     apply_margin_calculation_to_destination: bool = True,
     destination_selection_params: dict = {},
     origin_selection_params: dict = {},
     decimals: int = 3,
 ) -> dict:
-    
-    """Implementation of get_exchange_rate for Send money to VES
-    """
+    """Implementation of get_exchange_rate for Send money to VES"""
 
     calculation: dict = get_exchange_rate(
         origin_currency_prices=origin_currency_prices,
@@ -205,9 +179,9 @@ def get_rate_to_ves(
         apply_margin_calculation_to_destination=apply_margin_calculation_to_destination,
         destination_selection_params=destination_selection_params,
         origin_selection_params=origin_selection_params,
-        decimals=decimals
+        decimals=decimals,
     )
-    
+
     return {
         "origin_currency": origin_currency,
         "destination_currency": destination_currency,
@@ -219,25 +193,21 @@ def get_rate_to_ves(
         "rate": calculation["rate"],
     }
 
+
 def get_rate_from_ves(
     destination_currency: str,
     origin_currency_prices: List[Decimal],
     destination_currency_prices: List[Decimal],
-
     selection_method: Callable = get_positional_price,
     margin_calculation_method: Callable = charge_margin_profit_using_porcentage,
     margin_calculation_params: dict = {},
-
     origin_currency: str = "VES",
-
     apply_margin_calculation_to_destination: bool = False,
     destination_selection_params: dict = {},
     origin_selection_params: dict = {},
     decimals: int = 3,
 ) -> dict:
-    
-    """Implementation of get_exchange_rate for Send money to VES
-    """
+    """Implementation of get_exchange_rate for Send money to VES"""
 
     calculation: dict = get_exchange_rate(
         origin_currency_prices=origin_currency_prices,
@@ -248,9 +218,9 @@ def get_rate_from_ves(
         apply_margin_calculation_to_destination=apply_margin_calculation_to_destination,
         destination_selection_params=destination_selection_params,
         origin_selection_params=origin_selection_params,
-        decimals=decimals
+        decimals=decimals,
     )
-    
+
     return {
         "origin_currency": origin_currency,
         "destination_currency": destination_currency,
@@ -268,19 +238,20 @@ def fetch_prices_thread_pool(operations, trade_type="SELL"):
         prices_list = list(
             executor.map(
                 lambda currency: get_prices(
-                    currency["code"],
-                    trade_type=trade_type,
-                    **currency["filters"]
+                    currency["code"], trade_type=trade_type, **currency["filters"]
                 ),
-                operations   
+                operations,
             )
         )
 
         return {k: v for d in prices_list for k, v in d.items()}
 
+
 def get_multiple_rates_from_ves(
     ves_prices: List[Decimal],
-    sell_prices: Dict[str, Decimal]
+    sell_prices: Dict[str, Decimal],
+    margin_expected_profit: float | Decimal
+
 ) -> List[dict]:
     """Implementation of get_rate_from_ves for multiple currencies
     sell_prices can include VES prices, this will be safetly ignored
@@ -292,14 +263,17 @@ def get_multiple_rates_from_ves(
                 get_rate_from_ves(
                     destination_currency=code,
                     origin_currency_prices=ves_prices,
-                    destination_currency_prices=sell_prices[code]
+                    destination_currency_prices=sell_prices[code],
+                    margin_calculation_params={"profit_margin":margin_expected_profit}
                 )
             )
     return rates_from_ves
 
+
 def get_multiple_rates_to_ves(
     ves_prices: List[Decimal],
-    buy_prices: Dict[str, Decimal]
+    buy_prices: Dict[str, Decimal],
+    margin_expected_profit: float | Decimal
 ) -> List[dict]:
     """Implementation of get_rate_to_ves for multiple currencies
     buy_prices can include VES prices, this will be safetly ignored
@@ -311,8 +285,8 @@ def get_multiple_rates_to_ves(
                 get_rate_to_ves(
                     origin_currency=code,
                     origin_currency_prices=buy_prices[code],
-                    destination_currency_prices=ves_prices
+                    destination_currency_prices=ves_prices,
+                    margin_calculation_params={"profit_margin":margin_expected_profit}
                 )
             )
     return rates_to_ves
-
