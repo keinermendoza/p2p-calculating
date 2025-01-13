@@ -33,7 +33,7 @@ export default defineConfig({
         main: path.resolve('./src/main.jsx'),
       },
       output: {
-        dir: '../static/vendor',
+        dir: '../staticfiles/vendor',
         entryFileNames: '[name].js',
       },
     } 

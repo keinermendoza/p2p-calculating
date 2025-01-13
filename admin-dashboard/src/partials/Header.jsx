@@ -43,7 +43,7 @@ function Header({
           <div className="flex items-center space-x-3">
             <div>
             <div className="ml-8 flex items-baseline space-x-4">
-                <a href="/" className=" bg-gray-900 text-white  hover:bg-gray-700 hover:text-white  rounded-md px-3 py-2 text-sm font-medium ">Ver sitio</a>
+                {/* <a href="/" className=" bg-gray-900 text-white  hover:bg-gray-700 hover:text-white  rounded-md px-3 py-2 text-sm font-medium ">Ver sitio</a> */}
                 <form action="/logout" method="post">
                   <input type="hidden" name="_method" value="DELETE" />
                   <button type="submit" className="rounded-md bg-slate-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600">Salir</button>

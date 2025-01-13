@@ -182,6 +182,9 @@ def get_rate_to_ves(
         decimals=decimals,
     )
 
+    # this is may not be thebest solution
+    # profit_margin = margin_calculation_params["profit_margin"]
+
     return {
         "origin_currency": origin_currency,
         "destination_currency": destination_currency,
@@ -190,6 +193,7 @@ def get_rate_to_ves(
         "destination_prices": destination_currency_prices[:5],
         "destination_reference_price": calculation["destination_reference_price"],
         "calculated_price": calculation["calculated_price"],
+        # "profit_margin":profit_margin,
         "rate": calculation["rate"],
     }
 
@@ -221,6 +225,9 @@ def get_rate_from_ves(
         decimals=decimals,
     )
 
+    # profit_margin = margin_calculation_params["profit_margin"]
+
+
     return {
         "origin_currency": origin_currency,
         "destination_currency": destination_currency,
@@ -230,6 +237,7 @@ def get_rate_from_ves(
         "destination_reference_price": calculation["destination_reference_price"],
         "calculated_price": calculation["calculated_price"],
         "rate": calculation["rate"],
+        # "profit_margin":profit_margin,
     }
 
 

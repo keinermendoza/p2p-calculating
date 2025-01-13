@@ -16,6 +16,7 @@ import { CurrencyList, CurrencyCreate, CurrencyDetail } from './pages/currencies
 import { ExchangeList, ExchangeCreate, ExchangeDetail } from './pages/exchanges';
 import { Info } from './pages/info/Info';
 import { Social } from './pages/social/Social';
+import Index from './pages/Index';
 
 import { Loading } from './components/ui';
 
@@ -36,10 +37,14 @@ function App() {
       <Suspense fallback={<Loading/>}>
 
       <Routes>
-        <Route path="/admin" element={<DashboardLayout />}>
+        <Route path="/panel" element={<DashboardLayout />}>
+
+          <Route index element={<Index />} />
+
+          {/*
           <Route index element={<Navigate to="/admin/cambios" replace />} />
           
-          <Route path="monedas"  >
+           <Route path="monedas"  >
             <Route index element={<CurrencyList />} />
             <Route path="registrar" element={<CurrencyCreate />} />
             <Route path=":id" element={<CurrencyDetail />} />
@@ -52,7 +57,8 @@ function App() {
           </Route>
 
           <Route path="info" element={<Info />} />
-          <Route path="social" element={<Social />} />
+          <Route path="social" element={<Social />} /> 
+          */}
 
         </Route>
       </Routes>

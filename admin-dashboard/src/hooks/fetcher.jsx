@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const BASE_URL = '/api/'; 
+// const BASE_URL = '/api/'; 
 
 export function useFetchGet(url) {
     const [loading, setLoading] = useState(false);
@@ -14,7 +14,7 @@ export function useFetchGet(url) {
             try {
                 setLoading(true);
                 setError('');
-                const resp = await fetch(BASE_URL + url, controller, {
+                const resp = await fetch(url, controller, {
                     headers: {
                         "Content-Type": "application/json",
                     },

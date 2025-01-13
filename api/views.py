@@ -41,7 +41,7 @@ class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
 
 
 class MonedasAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         initial_time = time.time()
@@ -68,6 +68,7 @@ class MonedasAPIView(APIView):
             margin_expected_profit=porcentage
         )
 
+
         ending_time = time.time()
         response_time = ending_time - initial_time
         return Response(
@@ -75,6 +76,7 @@ class MonedasAPIView(APIView):
                 "time": response_time,
                 "rates_to_ves": rates_to_ves,
                 "rates_from_ves": rates_from_ves,
+                "profit_margin":porcentage * 100 
             },
             status=status.HTTP_200_OK,
         )

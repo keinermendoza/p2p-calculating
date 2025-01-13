@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-
+import Logo from "../images/qp2p.jpg";
 import SidebarLinkGroup from "./SidebarLinkGroup";
 
 function Sidebar({
@@ -80,9 +80,8 @@ function Sidebar({
           </button>
           {/* Logo */}
           <a href="/" className="flex items-center gap-3">
-            <svg className="fill-violet-500" xmlns="http://www.w3.org/2000/svg" width={32} height={32}>
-              <path d="M31.956 14.8C31.372 6.92 25.08.628 17.2.044V5.76a9.04 9.04 0 0 0 9.04 9.04h5.716ZM14.8 26.24v5.716C6.92 31.372.63 25.08.044 17.2H5.76a9.04 9.04 0 0 1 9.04 9.04Zm11.44-9.04h5.716c-.584 7.88-6.876 14.172-14.756 14.756V26.24a9.04 9.04 0 0 1 9.04-9.04ZM.044 14.8C.63 6.92 6.92.628 14.8.044V5.76a9.04 9.04 0 0 1-9.04 9.04H.044Z" />
-            </svg>
+            <img className="rounded-full" src={Logo} width={40} height={40} alt="Logo" />
+           
             <span className="">Ver Sitio</span>
           </a>
         </div>
@@ -98,9 +97,28 @@ function Sidebar({
               <span className="lg:hidden lg:sidebar-expanded:block 2xl:block">Principal</span>
             </h3>
             <ul className="mt-3">
+            <NavLink 
+              className={({ isActive }) =>
+              "py-2 px-4 flex items-center gap-3 transition duration-150 truncate " + (isActive ? "text-violet-500" : "text-gray-500/90 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200")
+            }
+              to={"/panel/"}>
+
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"
+                className={`size-6 ${pathname === "/panel/" ? 'text-violet-500' : 'text-gray-400 dark:text-gray-500'}`}
+
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0 0 12 2.25Z" />
+              </svg>
+
+               
+                  <span>Calculos</span>
+
+              </NavLink>
+
+
               {/* Dashboard */}
 
-              <NavLink 
+              {/* <NavLink 
               className={({ isActive }) =>
               "py-2 px-4 flex items-center gap-3 transition duration-150 truncate " + (isActive ? "text-violet-500" : "text-gray-500/90 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200")
             }
@@ -129,12 +147,12 @@ function Sidebar({
                 </svg>
                <span>Cambios</span>
 
-              </NavLink>
+              </NavLink> */}
          
             </ul>
           </div>
           {/* More group */}
-          <div>
+          {/* <div>
             <h3 className="text-xs uppercase text-gray-400 dark:text-gray-500 font-semibold pl-3">
               <span className="hidden lg:block lg:sidebar-expanded:hidden 2xl:hidden text-center w-6" aria-hidden="true">
                 •••
@@ -173,7 +191,7 @@ function Sidebar({
 
 
           
-          </div>
+          </div> */}
         </div>
 
         {/* Expand / collapse button */}
@@ -193,3 +211,5 @@ function Sidebar({
 }
 
 export default Sidebar;
+
+
