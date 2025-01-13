@@ -156,3 +156,8 @@ BINNACE_API_KEY = getenv("API_KEY")
 BINNACE_SECRET_KEY = getenv("API_SECRET_KEY")
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
