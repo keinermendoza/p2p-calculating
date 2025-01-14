@@ -6,8 +6,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 
-# from django.views.decorators.csrf import csrf_exempt
-# from django.utils.decorators import method_decorator
 
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -18,6 +16,7 @@ from core.p2p_api import (
     get_multiple_rates_from_ves,
     get_multiple_rates_to_ves,
     fetch_prices_thread_pool,
+    get_trade_methods
 )
 
 from core.models import (
@@ -42,7 +41,6 @@ class CurrencyAvailable(APIView):
         availabel_options = set(FIAT_OPTIONS) - set(codes)
         return Response(availabel_options)
 
-# @method_decorator(csrf_exempt, name='dispatch')
 class CurrencyAPIListCreate(ListCreateAPIView):
     permission_classes = [AllowAny]
     queryset = Currency.objects.all()
@@ -52,6 +50,17 @@ class CurrencyAPIListCreate(ListCreateAPIView):
 class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        """calling binance for retrive available trade_methods
+        """
+        instance = self.get_object()
+        trade_methods = get_trade_methods(instance.code)
+        serializer = self.get_serializer(instance)
+        return Response({
+            "available_trade_methods":trade_methods,
+            "currency" :serializer.data
+        })
 
 
 class MonedasAPIView(APIView):

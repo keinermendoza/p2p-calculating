@@ -1,15 +1,23 @@
 from concurrent.futures import ThreadPoolExecutor
-
+import requests
 from core.p2p_api import (
     get_rate_to_ves,
     get_rate_from_ves,
     get_multiple_rates_from_ves,
     get_multiple_rates_to_ves,
     get_prices,
-    fetch_prices_thread_pool
+    fetch_prices_thread_pool,
+    get_trade_methods
 )
 
+
+
+
 def run():
+
+    print(get_trade_methods("BRL"))
+    
+
 
     # # searched = "COP" # SI
     # # searched = "BRL" # SI
@@ -61,38 +69,38 @@ def run():
     # print("precio promedio USDT en Bs a", VES_SELL_3)
 
     
-    operations = [
-        {
-            "code": "BRL",
-            "filters": {
-                "payTypes": ["Pix"],
-                "transAmount": 100
-            }
+    # operations = [
+    #     {
+    #         "code": "BRL",
+    #         "filters": {
+    #             "payTypes": ["Pix"],
+    #             "transAmount": 100
+    #         }
             
-        },
-        {
-            "code": "VES",
-            "filters": {
-                "transAmount":  5000,
-                "payTypes": ["BANK", "SpecificBanck"],
-            }
-        },
-        {
-            "code": "PEN",
-            "filters": {}
-        },
-    ]
+    #     },
+    #     {
+    #         "code": "VES",
+    #         "filters": {
+    #             "transAmount":  5000,
+    #             "payTypes": ["BANK", "SpecificBanck"],
+    #         }
+    #     },
+    #     {
+    #         "code": "PEN",
+    #         "filters": {}
+    #     },
+    # ]
 
     
-    sell_prices = fetch_prices_thread_pool(operations)
-    buy_prices = fetch_prices_thread_pool(operations, trade_type="BUY")
+    # sell_prices = fetch_prices_thread_pool(operations)
+    # buy_prices = fetch_prices_thread_pool(operations, trade_type="BUY")
 
-    rates_to_ves = get_multiple_rates_to_ves(ves_prices=sell_prices["VES"], buy_prices=buy_prices)
-    rates_from_ves = get_multiple_rates_from_ves(ves_prices=buy_prices["VES"], sell_prices=sell_prices)
+    # rates_to_ves = get_multiple_rates_to_ves(ves_prices=sell_prices["VES"], buy_prices=buy_prices)
+    # rates_from_ves = get_multiple_rates_from_ves(ves_prices=buy_prices["VES"], sell_prices=sell_prices)
 
-    # print("sell_prices", sell_prices)
-    # print("buy_prices", buy_prices)
+    # # print("sell_prices", sell_prices)
+    # # print("buy_prices", buy_prices)
 
-    print("rates_to_ves", rates_to_ves)
-    # print("rates_from_ves", rates_from_ves)
+    # print("rates_to_ves", rates_to_ves)
+    # # print("rates_from_ves", rates_from_ves)
 

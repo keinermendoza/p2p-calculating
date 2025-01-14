@@ -69,6 +69,17 @@ def get_prices(
 
     return {currency: [Decimal(adv["adv"]["price"]) for adv in data["data"]]}
 
+def get_trade_methods(currency: str) -> List[str]:
+    """Retrives the available trade Methods for a currency 
+    """
+    url = "https://p2p.binance.com/bapi/c2c/v2/public/c2c/adv/filter-conditions"
+    payload = {
+        "fiat": currency
+    }
+    resp = requests.post(url=url, json=payload)
+    data = resp.json()
+    return  [method["identifier"] for method in data["data"]["tradeMethods"]]
+
 
 def get_positional_price(
     prices: List[Decimal], price_position: int = 3, decimals: int = 2

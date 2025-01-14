@@ -2,8 +2,9 @@ import { NavLink, useNavigate } from "react-router";
 import { useForm, Controller } from "react-hook-form";
 import { CardAction, CardFooter, PrimaryButton } from "../../components/ui";
 import {ImageField, inputTextStyle} from "../../components/forms";
-import { fetchPostForm, fetchPost } from "../../services/fetchPost";
+import { fetchPost } from "../../services/fetchPost";
 import { useFetchGet } from '../../hooks/fetcher';
+import Select from 'react-select';
 
 import { ComeBackLink } from "../../components/ComeBackLink";
 import { useMessageProvider } from "../../utils/MessageContext";
@@ -19,6 +20,7 @@ export  function CurrencyCreate() {
   const onSubmit = async (data) => {
     console.log("data", data);
 
+  
     // const formData = new FormData();
     // Object.entries(data).forEach(([key, value]) => formData.append(key, value));
     const response = await fetchPost("/api/currencies/", data);
@@ -31,8 +33,7 @@ export  function CurrencyCreate() {
 
     }
   }
-
-
+const darkStyles = "dark:bg-gray-700 dark:border-gray-600  dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
   return (
     <section>
       <ComeBackLink />
@@ -42,7 +43,7 @@ export  function CurrencyCreate() {
       <form className="max-w-sm" onSubmit={handleSubmit(onSubmit)} >
       <CardAction extraClass="gap-4">
         <div>
-          <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre de la Moneda</label>
+          <label htmlFor="name" className="block mb-2 text-sm font-medium  text-gray-900 dark:text-white">Nombre</label>
           {errors.name && <p className="text-red-800 font-medium">{errors.name.message}</p>}
           <input 
           placeholder="Real" 
@@ -56,41 +57,59 @@ export  function CurrencyCreate() {
           />
         </div>
 
-        {/* <div>
-          <label htmlFor="symbol" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Simbolo</label>
-          {errors.symbol && <p className="text-red-800 font-medium">{errors.symbol.message}</p>}
-          <input 
-          placeholder="R$" 
-          className={inputTextStyle}
-          {...register("symbol", 
-            {
-              required: "Proporciona un simbolo",
-              maxLength: {value:5, message: "el simbolo debe tener maximo 5 letras"},
+          <div>
 
-            }
-          )}
-          />
-        </div> */}
+          <label htmlFor="code" className="block mb-2 text-sm font-medium  text-gray-900 dark:text-white">Codigo</label>
+          {errors.name && <p className="text-red-800 font-medium">{errors.name.message}</p>}
 
-        <div>
-          <label htmlFor="code" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Codigo</label>
-          {errors.code && <p className="text-red-800 font-medium">{errors.code.message}</p>}
-          <input  list="codeOptions" className={inputTextStyle}
-          {...register("code", 
-            {
-              required: "Proporciona un codigo",
-            }
-          )}
+            <Controller
+                name="code"
+                control={control}
+                defaultValue={null} // Valor inicial
+                render={({ field }) => (
+                    <Select
+                        {...field}
+                        options={currencyOptions?.map(item => ({
+                          value: item,
+                          label: item,
+                        }))}
+                        value={currencyOptions?.find(c => c.value === field.value)}
+                        onChange={val => field.onChange(val.value)}
 
+                        
+                        classNames={{
+                          control: (state) => "p-0.5 rounded-md placeholder:text-gray-100  " + darkStyles,
+                          input: (state) => "text-white  dark:text-white placeholder:text-red-400",
+                          option: (state) => state.isSelected ? "bg-blue-400 dark:bg-indigo-600" : "hover:bg-slate-400 dark:hover:bg-slate-800",
+                          menuList: (state) => "dark:text-white " + darkStyles,
+                        }}
 
+                        // overriding styles, because styles takes precedence over classNames
+                        styles={{
+                          input: (base) => ({
+                            ...base,
+                            "input:focus": {
+                              boxShadow: "none",
+                            },
+                          }),
+                          option: (base, state) => ({
+                            ...base,
+                            backgroundColor: '',
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            color: '',
+                          })
+                
+
+                        }}
+                      
+                        placeholder="Selecciona una opción"
+                    />
+                )}
             />
-          <datalist id="codeOptions">
-            {currencyOptions?.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </datalist>
-        </div>
 
+          </div>
 
      
         {/* https://claritydev.net/blog/react-hook-form-multipart-form-data-file-uploads */}
@@ -130,3 +149,8 @@ export  function CurrencyCreate() {
     </section>
   )
 }
+
+// https://stackoverflow.com/questions/62795886/returning-correct-value-using-react-select-and-react-hook-form
+// for multi 
+// value={options.filter(c => value.includes(c.value))}
+//       onChange={val => onChange(val.map(c => c.value))}
