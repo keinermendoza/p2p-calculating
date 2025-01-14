@@ -1,9 +1,9 @@
-const BASE_URL = '/api/';
 const defaultErrorMessage = "Ocurrió un error, si el error continúa por favor recarga la página";
 
 export async function fetchPostForm(endpoint, body, method="POST") {
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetch(endpoint, {
+      credentials: 'include',
       method: method,
       body: body,
     });
@@ -30,11 +30,12 @@ export async function fetchPostForm(endpoint, body, method="POST") {
 
 export async function fetchPost(endpoint, payload, method = "POST") {
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetch(endpoint, {
       method: method,
-      credentials: 'include',
+      // credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        "X-CSRFToken": getCookie("csrftoken"),
       },
       body: JSON.stringify(payload),
     });
@@ -60,3 +61,18 @@ export async function fetchPost(endpoint, payload, method = "POST") {
   }
 }
   
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Comprueba si esta cookie comienza con el nombre buscado
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}

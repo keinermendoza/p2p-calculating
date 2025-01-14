@@ -1,10 +1,13 @@
 from typing import Callable
 import time
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
+
+# from django.views.decorators.csrf import csrf_exempt
+# from django.utils.decorators import method_decorator
 
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -27,13 +30,24 @@ from .serializers import (
     ProfitExpectedMarginSerializer
 )
 
+from .utils import FIAT_OPTIONS
+
 class ProfitExpectedMarginViewSet(viewsets.ModelViewSet):
     queryset = ProfitExpectedMargin.objects.all()
     serializer_class = ProfitExpectedMarginSerializer
 
+class CurrencyAvailable(APIView):
+    def get(self, request, *args, **kwargs):
+        codes = Currency.objects.values_list("code", flat=True)
+        availabel_options = set(FIAT_OPTIONS) - set(codes)
+        return Response(availabel_options)
+
+# @method_decorator(csrf_exempt, name='dispatch')
 class CurrencyAPIListCreate(ListCreateAPIView):
+    permission_classes = [AllowAny]
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializer
+
 
 class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
     queryset = Currency.objects.all()

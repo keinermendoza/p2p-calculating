@@ -2,27 +2,33 @@ import { NavLink, useNavigate } from "react-router";
 import { useForm, Controller } from "react-hook-form";
 import { CardAction, CardFooter, PrimaryButton } from "../../components/ui";
 import {ImageField, inputTextStyle} from "../../components/forms";
-import { fetchPostForm } from "../../services/fetchPost";
+import { fetchPostForm, fetchPost } from "../../services/fetchPost";
+import { useFetchGet } from '../../hooks/fetcher';
+
 import { ComeBackLink } from "../../components/ComeBackLink";
 import { useMessageProvider } from "../../utils/MessageContext";
 
 export  function CurrencyCreate() {
-  const endpoint = "currencies";
+  const {data:currencyOptions} = useFetchGet("/api/currencies/available/")
+  
   const navigate = useNavigate();
   const { register, handleSubmit, setValue, control, formState: { errors, isSubmitting } } = useForm();
-  const {addMessage} = useMessageProvider();
+  // const {addMessage} = useMessageProvider();
 
   
   const onSubmit = async (data) => {
     console.log("data", data);
 
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => formData.append(key, value));
-    const response = await fetchPostForm(endpoint, formData);
+    // const formData = new FormData();
+    // Object.entries(data).forEach(([key, value]) => formData.append(key, value));
+    const response = await fetchPost("/api/currencies/", data);
     
     if (!response.errors) {
-      addMessage("Moneda creada con exito!");
+      // addMessage("Moneda creada con exito!");
       navigate("../");
+    } else {
+      console.log(response.errors) 
+
     }
   }
 
@@ -44,14 +50,13 @@ export  function CurrencyCreate() {
           {...register("name", 
             {
               required: {value: "Proporciona un nombre"},
-              maxLength: {value:50, message: "el nombre debe tener maximo 50 letras"},
-              minLength: {value:3, message: "el nombre debe tener minimo 3 letras"},
+              maxLength: {value:100, message: "el nombre no puede tener más de 100 letras"},
             }
           )}
           />
         </div>
 
-        <div>
+        {/* <div>
           <label htmlFor="symbol" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Simbolo</label>
           {errors.symbol && <p className="text-red-800 font-medium">{errors.symbol.message}</p>}
           <input 
@@ -65,13 +70,33 @@ export  function CurrencyCreate() {
             }
           )}
           />
+        </div> */}
+
+        <div>
+          <label htmlFor="code" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Codigo</label>
+          {errors.code && <p className="text-red-800 font-medium">{errors.code.message}</p>}
+          <input  list="codeOptions" className={inputTextStyle}
+          {...register("code", 
+            {
+              required: "Proporciona un codigo",
+            }
+          )}
+
+
+            />
+          <datalist id="codeOptions">
+            {currencyOptions?.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </datalist>
         </div>
+
 
      
         {/* https://claritydev.net/blog/react-hook-form-multipart-form-data-file-uploads */}
         {/* https://react-hook-form.com/docs/usecontroller/controller */}
 
-          <Controller
+          {/* <Controller
             control={control}
             name={"image"}
             // rules={{ required: "Recipe picture is required" }}
@@ -89,6 +114,8 @@ export  function CurrencyCreate() {
             }}
           />
 
+        */}
+
         <CardFooter extraClass="justify-end">
           <PrimaryButton
             isDisabled={isSubmitting}
@@ -96,6 +123,8 @@ export  function CurrencyCreate() {
           >Guardar Cambios</PrimaryButton>
         </CardFooter>
       </CardAction>  
+
+
       </form>
 
     </section>

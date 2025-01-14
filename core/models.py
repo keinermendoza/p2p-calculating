@@ -15,8 +15,8 @@ class UseTimeStamps(models.Model):
 
 
 class Currency(UseTimeStamps):
-    name = models.CharField("Moneda", max_length=100)
-    code = models.CharField("Código", max_length=4)
+    name = models.CharField("Moneda", max_length=100, unique=True)
+    code = models.CharField("Código", max_length=4, unique=True)
     filters = models.JSONField("filtros", blank=True, default=dict)
 
     def __str__(self) -> str:

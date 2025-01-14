@@ -98,9 +98,7 @@ function Sidebar({
             </h3>
             <ul className="mt-3">
             <NavLink 
-              className={({ isActive }) =>
-              "py-2 px-4 flex items-center gap-3 transition duration-150 truncate " + (isActive ? "text-violet-500" : "text-gray-500/90 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200")
-            }
+              className={`py-2 px-4 flex items-center gap-3 transition duration-150 truncate ${pathname === "/panel/" ? "text-violet-500" : "text-gray-500/90 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"} `}
               to={"/panel/"}>
 
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"
@@ -118,11 +116,11 @@ function Sidebar({
 
               {/* Dashboard */}
 
-              {/* <NavLink 
+              <NavLink 
               className={({ isActive }) =>
               "py-2 px-4 flex items-center gap-3 transition duration-150 truncate " + (isActive ? "text-violet-500" : "text-gray-500/90 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200")
             }
-              to={"/admin/monedas"}>
+              to={"/panel/monedas"}>
                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
                   className={`size-6 ${pathname.includes("monedas") ? 'text-violet-500' : 'text-gray-400 dark:text-gray-500'}`}
                   >
@@ -131,6 +129,8 @@ function Sidebar({
                   <span>Monedas</span>
 
               </NavLink>
+
+              {/* 
 
               <NavLink 
               className={({ isActive }) =>

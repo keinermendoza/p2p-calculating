@@ -5,6 +5,7 @@ import { CardAction, CardFooter, PrimaryButton } from "../components/ui";
 import { useFetchGet} from '../hooks/fetcher';
 import { fetchPost } from "../services/fetchPost";
 import { displayResponseMessages } from "../lib/utils";
+import { SimpleCard, OutlinedCard, RowInfo } from "../components/ui";
 
 export default function Index() {
 const endpoint = "/api/exchanges";
@@ -44,29 +45,8 @@ return (
   )
 }
 
-const SimpleCard = ({children, padding="md", hasHover=null}) => {
-  return (
-    <div className={`rounded-lg ${padding === "sm"  ? 'p-2' : 'p-4'}   bg-indigo-600 bg-opacity-0 dark:border-indigo-700  ${hasHover && 'cursor-pointer hover:bg-opacity-10'}`} >
-      {children}
-    </div>
-  )
-}
 
-const OutlinedCard =({children, padding="md", hasHover=null}) => {
-  return (
-    <div className={`border-solid border-2 dark:border-indigo-700 border-slate-500 rounded-lg ${padding === "sm"  ? 'p-2' : 'p-4'} bg-indigo-600 bg-opacity-0  ${hasHover && 'cursor-pointer hover:bg-opacity-10'}`} >
-      {children}
-    </div>
-  )
-}
 
-const RowInfo = ({children}) => {
-  return (
-    <div className="p-2 dark:bg-indigo-950 bg-indigo-200 rounded-md flex gap-4 items-center justify-between">
-      {children}
-    </div>
-  )
-}
 
 const ExchageSideSection = ({data, title, isToVes}) => {
     return (
@@ -122,14 +102,6 @@ const ExchageSideSection = ({data, title, isToVes}) => {
                       </div>
                       
                   </div>
-
-                
-{/* 
-                <div className="flex flex-col gap-2">
-                  
-                </div> */}
-                
-
             </div>
             ))}
                 
@@ -140,22 +112,3 @@ const ExchageSideSection = ({data, title, isToVes}) => {
     )
 }
 
-  {/* <div className="flex flex-col gap-0.5">
-                        <p className="">Mejores 5 precios en {currencyPair.origin_currency}</p>
-                        <p className="flex underline underline-offset-2 gap-4 text-blue-600 dark:text-indigo-500 font-semibold ">
-                            {currencyPair?.origin_prices.map((price, index) => (
-                                <span className={index === 2 ? 'text-yellow-600': ''}  >{price}</span>
-                            ))}
-                        </p>
-                        <p className="text-lg">Precio de Referencia  <span className="ms-2 text-xl font-semibold text-yellow-600">{currencyPair.origin_reference_price}</span></p>
-                    </div> */}
-{/*                     
-                    <div className="flex flex-col gap-0.5">
-                        <p className="">Mejores 5 precios en {currencyPair.destination_currency}</p>
-                        <p className="flex underline underline-offset-2 gap-4 text-blue-600 dark:text-indigo-500 font-semibold ">
-                            {currencyPair?.destination_prices.map((price, index) => (
-                                <span className={index === 2 ? 'text-yellow-600': ''}  >{price}</span>
-                            ))}
-                        </p>
-                        <p className="text-lg">Precio de Referencia  <span className="ms-2 text-xl font-semibold text-yellow-600">{currencyPair.destination_reference_price}</span></p>
-                    </div> */}

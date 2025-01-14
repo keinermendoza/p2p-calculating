@@ -4,6 +4,7 @@ from core.models import (
     Currency,
     ProfitExpectedMargin
 )
+from .utils import FIAT_OPTIONS
 # https://www.django-rest-framework.org/api-guide/serializers/#accessing-the-initial-data-and-instance
 # When passing data to a serializer instance, the unmodified data will be made available as .initial_data. 
 # If the data keyword argument is not passed then the .initial_data attribute will not exist.
@@ -58,6 +59,13 @@ class CurrencySerializer(RejectExtraFieldsSerializer, serializers.ModelSerialize
     class Meta:
         model = Currency
         fields = "__all__"
+
+    def validate_code(self, code):
+        """check if the code is in the list of allowed codes 
+        """
+        if code not in FIAT_OPTIONS:
+            raise serializers.ValidationError("Opcion inválida")
+        return code
 
     def validate(self, data):
         """manually calling validate inside nested CurrencyFiltersSerializer
