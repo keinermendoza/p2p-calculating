@@ -58,7 +58,7 @@ class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
         trade_methods = get_trade_methods(instance.code)
         serializer = self.get_serializer(instance)
         return Response({
-            "available_trade_methods":trade_methods,
+            "tradeMethods":trade_methods,
             "currency" :serializer.data
         })
 

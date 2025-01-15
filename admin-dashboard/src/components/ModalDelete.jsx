@@ -13,11 +13,11 @@ export function ModalDelete({children, deleteCallback, deleteButtonText, isDisab
     return (
     <>
     <button onClick={toogleIsOpen} data-modal-target="popup-modal" data-modal-toggle="popup-modal" 
-    className="inline-flex items-center px-5 py-2.5 font-medium text-center text-white bg-blue-500 border-2 border-solid rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-transparent dark:hover:bg-indigo-800 dark:border-indigo-800 dark:focus:bg-indigo-800" type="button">
+    className="inline-flex items-center px-5 py-2.5 font-medium text-center text-white bg-red-500 border-2 border-solid rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-transparent dark:hover:bg-indigo-800 dark:border-indigo-800 dark:focus:bg-indigo-800" type="button">
     {deleteButtonText}
     </button>
     
-    {isOpen && <div className="fixed top-0 left-0 w-screen h-screen bg-opacity-50 bg-black"></div>}
+    {isOpen && <div className="fixed z-40 top-0 left-0 w-screen h-screen bg-opacity-50 bg-black"></div>}
     
     <div id="popup-modal" tabIndex="-1" 
     className={` ${isOpen ? '' : 'hidden'} flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full`}>

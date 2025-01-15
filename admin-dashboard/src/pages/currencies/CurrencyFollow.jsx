@@ -50,7 +50,7 @@ const {data:currencies, loading, error} = useFetchGet("/api/currencies");
                 <p>No tiene filtros asociados</p>
             )} 
             
-            <Link className={primaryButtonStyle} to={currency.id}>Editar</Link>
+            <Link className={primaryButtonStyle} to={"./" + currency.id}>Editar</Link>
             
         </OutlinedCard>
     ))}

@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router";
 import { useForm, Controller } from "react-hook-form";
 import { CardAction, CardFooter, PrimaryButton } from "../../components/ui";
-import {ImageField, inputTextStyle} from "../../components/forms";
+import {ImageField, inputTextStyle, darkStyles} from "../../components/forms";
 import { fetchPost } from "../../services/fetchPost";
 import { useFetchGet } from '../../hooks/fetcher';
 import Select from 'react-select';
@@ -23,17 +23,17 @@ export  function CurrencyCreate() {
   
     // const formData = new FormData();
     // Object.entries(data).forEach(([key, value]) => formData.append(key, value));
-    const response = await fetchPost("/api/currencies/", data);
+    const responseData = await fetchPost("/api/currencies/", data);
+    console.log("response", responseData);
     
-    if (!response.errors) {
+    if (!responseData.errors) {
       // addMessage("Moneda creada con exito!");
-      navigate("../");
+      navigate("../" + responseData.id);
     } else {
-      console.log(response.errors) 
+      console.log(responseData.errors) 
 
     }
   }
-const darkStyles = "dark:bg-gray-700 dark:border-gray-600  dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
   return (
     <section>
       <ComeBackLink />

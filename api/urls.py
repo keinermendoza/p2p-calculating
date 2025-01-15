@@ -10,6 +10,6 @@ urlpatterns = [
     path('exchanges/', views.MonedasAPIView.as_view(), name="exchanges"),
     path('currencies/', views.CurrencyAPIListCreate.as_view(), name="currency_list"),
     path('currencies/available/', views.CurrencyAvailable.as_view(), name="currency_available"),
-    path('currency/<int:pk>', views.CurrencyAPIRUD.as_view(), name="currency_detail"),
+    path('currency/<int:pk>/', views.CurrencyAPIRUD.as_view(), name="currency_detail"),
     path('', include(router.urls)),
 ]

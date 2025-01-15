@@ -12,7 +12,7 @@ import './charts/ChartjsConfig';
 // Import pages
 import DashboardLayout from './layouts/DashboardLayout';
 
-import { CurrencyFollow, CurrencyCreate } from './pages/currencies';
+import { CurrencyFollow, CurrencyCreate, CurrencyDetail } from './pages/currencies';
 import { ExchangeList, ExchangeCreate, ExchangeDetail } from './pages/exchanges';
 import { Info } from './pages/info/Info';
 import { Social } from './pages/social/Social';
@@ -43,6 +43,8 @@ function App() {
           <Route path="monedas"  >
             <Route index element={<CurrencyFollow />} />
             <Route path="registrar" element={<CurrencyCreate />} />
+            <Route path=":id" element={<CurrencyDetail />} />
+
           </Route> 
 
           {/*

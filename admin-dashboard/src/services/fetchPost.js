@@ -42,6 +42,7 @@ export async function fetchPost(endpoint, payload, method = "POST") {
 
     // handeling response errors
     if (!response.ok) {
+      console.log("response no es ok")
       if (response.status === 500) {
         return {errors: defaultErrorMessage}
       } else {
@@ -57,11 +58,13 @@ export async function fetchPost(endpoint, payload, method = "POST") {
 
     // handeling conection errors
   } catch (err) {
+    console.log("catchong erro")
+
     return { errors: defaultErrorMessage };
   }
 }
   
-function getCookie(name) {
+export function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
     const cookies = document.cookie.split(";");
