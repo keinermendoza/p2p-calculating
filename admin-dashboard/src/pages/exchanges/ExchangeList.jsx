@@ -5,24 +5,11 @@ import { CurrencyRectangle } from "../../components/CurrencyRectangle";
 import { Loading, CardAction, CardFooter, PrimaryButton } from "../../components/ui";
 import { primaryButtonStyle, imageCss } from "../../components/forms";
 import { transformDate } from "../../lib/utils";
-import { useMessageProvider } from "../../utils/MessageContext";
-import { toast, ToastContainer } from "react-toastify";
 
 export function ExchangeList() {
     const navigate = useNavigate();
     const {data, loading, error} = useFetchGet("exchangerates");
-    const {getMessage, clearMessage} = useMessageProvider();
 
-    useEffect(() => {
-      const message = getMessage(); 
-
-      if (message) {
-        toast.success(message, {
-          onClose: clearMessage
-        });
-      }
-    }, [data]);
-    
  
     if (loading) {
         return <Loading/>;
@@ -33,8 +20,6 @@ export function ExchangeList() {
 
     return (
         <section>
-          <ToastContainer />
-
             <div className="flex flex-col items-center justify-start sm:flex-row sm:justify-between gap-4">
                 <h1 className='text-3xl font-medium'>Tipos de Cambio</h1>
                 <NavLink to={'registrar'} className={primaryButtonStyle}>

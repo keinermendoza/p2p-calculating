@@ -40,7 +40,7 @@ function App() {
         <Route path="/panel" element={<DashboardLayout />}>
 
           <Route index element={<Index />} />
-          <Route path="monedas"  >
+          <Route path="monedas">
             <Route index element={<CurrencyFollow />} />
             <Route path="registrar" element={<CurrencyCreate />} />
             <Route path=":id" element={<CurrencyDetail />} />

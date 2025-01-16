@@ -1,9 +1,9 @@
 import React from 'react'
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useFetchGet } from '../../hooks/fetcher';
 import { SimpleCard, OutlinedCard, RowInfo } from '../../components/ui';
 import { primaryButtonStyle } from "../../components/forms";
-
 
 export function CurrencyFollow() {
 const {data:currencies, loading, error} = useFetchGet("/api/currencies");

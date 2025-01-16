@@ -7,30 +7,27 @@ import { useFetchGet } from '../../hooks/fetcher';
 import Select from 'react-select';
 
 import { ComeBackLink } from "../../components/ComeBackLink";
-import { useMessageProvider } from "../../utils/MessageContext";
+import {toast} from "react-toastify";
 
 export  function CurrencyCreate() {
   const {data:currencyOptions} = useFetchGet("/api/currencies/available/")
   
   const navigate = useNavigate();
   const { register, handleSubmit, setValue, control, formState: { errors, isSubmitting } } = useForm();
-  // const {addMessage} = useMessageProvider();
 
   
   const onSubmit = async (data) => {
-    console.log("data", data);
 
   
     // const formData = new FormData();
     // Object.entries(data).forEach(([key, value]) => formData.append(key, value));
     const responseData = await fetchPost("/api/currencies/", data);
-    console.log("response", responseData);
     
     if (!responseData.errors) {
-      // addMessage("Moneda creada con exito!");
+      toast.success("Moneda agregada con exito!");
       navigate("../" + responseData.id);
     } else {
-      console.log(responseData.errors) 
+      toast.error("No fue posible agregar la moneda");
 
     }
   }

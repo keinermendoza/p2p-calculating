@@ -8,7 +8,6 @@ import {ImageField, inputTextStyle, darkStyles} from "../../components/forms";
 import {ModalDelete} from "../../components/ModalDelete";
 import { ToastContainer, toast } from 'react-toastify';
 import { ComeBackLink } from "../../components/ComeBackLink";
-import { useMessageProvider } from "../../utils/MessageContext";
 import Select from 'react-select';
 
 
@@ -16,10 +15,9 @@ export  function CurrencyDetail() {
   let { id } = useParams();
   const navigate = useNavigate();
   const endpoint = "/api/currency/" + id + "/";
-  // const {addMessage} = useMessageProvider();
   
+
   const {data:currency, loading, error} = useFetchGet(endpoint);
-  console.log(currency)
   const { register, handleSubmit, setValue, control, formState: { errors, isSubmitting } } = useForm();
   
   const onSubmit = async (data) => {
@@ -27,8 +25,11 @@ export  function CurrencyDetail() {
     const response = await fetchPost(endpoint, {filters: data}, "PATCH");
 
     if (!response.errors) {
-      // addMessage("Moneda actualizada con exito!");
+      toast.success("Filtros actualizados con exito!");
       navigate("../");
+    } else {
+      toast.error("No fue posible actualizar los filtros");
+
     }
 
   }
@@ -49,19 +50,19 @@ export  function CurrencyDetail() {
         }
       }
 
-      // addMessage("Moneda eliminada con exito!");
+      toast.success("Moneda eliminada con exito!");
       navigate("../");
     } catch(err) {
       toast.error(err.message || "No fue posible eliminar la moneda");
     }
   }
 
+
   // update fields when data is loaded  
   useEffect(() => {
     if (currency) {
       setValue( "payTypes", currency?.currency?.filters?.payTypes);
       setValue( "transAmount", currency?.currency?.filters?.transAmount);
-
     }
   }, [currency]);
 
@@ -75,7 +76,6 @@ export  function CurrencyDetail() {
 
   return (
     <section>
-      <ToastContainer />
       <ComeBackLink />
       <SimpleCard>
 
@@ -154,7 +154,7 @@ export  function CurrencyDetail() {
             className="rounded-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             {...register("transAmount", 
               {
-                min: {value: 1, message: "el valor debe ser postivo"},
+                min: {value: 0, message: "el valor debe ser postivo"},
                 max: {value: 999999999999, message: "el valor es demasiado alto"},
               }
             )}

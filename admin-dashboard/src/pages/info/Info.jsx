@@ -1,6 +1,5 @@
 import {  useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { ToastContainer } from 'react-toastify';
 import { CardAction, CardFooter, PrimaryButton } from "../../components/ui";
 import { useFetchGet} from '../../hooks/fetcher';
 import { fetchPost } from "../../services/fetchPost";
@@ -35,7 +34,6 @@ const onSubmit = async (data) => {
 
 return (
   <div>
-    <ToastContainer />
 
     <h1 className="text-3xl font-medium mb-10">Datos públicos del negocio</h1>
     <form className="max-w-sm" onSubmit={handleSubmit(onSubmit)} >

@@ -23,7 +23,7 @@ class RejectExtraFieldsSerializer(serializers.BaseSerializer):
 class CurrencyFiltersSerializer(RejectExtraFieldsSerializer, serializers.Serializer):
     payTypes = serializers.ListField(
         max_length=10,
-        allow_empty=False,
+        allow_empty=True,
         required=False,
         error_messages={
             "max_length": "payTypes acepta hasta 10 metodos.",
@@ -39,14 +39,15 @@ class CurrencyFiltersSerializer(RejectExtraFieldsSerializer, serializers.Seriali
         )
     )
     transAmount = serializers.IntegerField(
-        min_value=0,
-        required=False,
+        required=False,  # No es obligatorio
+        allow_null=True,  # Permite el valor null
+        min_value=0,  # Si necesitas que sea mayor o igual a 0
         error_messages={
             "invalid": "transAmount debe ser un número entero.",
-            "min_value":"transAmount debe ser mayor o igual a 0" 
+            "min_value": "transAmount debe ser mayor o igual a 0",
+            "null": "transAmount no puede ser nulo."  # Este mensaje es opcional
         }
     )
-
 
 class CurrencySerializer(RejectExtraFieldsSerializer, serializers.ModelSerializer):
     filters = CurrencyFiltersSerializer(

@@ -9,11 +9,9 @@ import AvatarCircle from "../../components/ui/AvatarCircle";
 import { ToastContainer, toast } from 'react-toastify';
 import {ModalDelete} from "../../components/ModalDelete";
 import { ComeBackLink } from "../../components/ComeBackLink";
-import { useMessageProvider } from "../../utils/MessageContext";
 
 export  function ExchangeDetail() {
   const { id } = useParams();
-  const {addMessage} = useMessageProvider();
   const [isPreselected, setIsPreselected] = useState(false);
   const [isUpdatingPreselected, setIsUpdatingPreselected] = useState(false);
 
@@ -72,7 +70,7 @@ export  function ExchangeDetail() {
         throw new Error();
       }
 
-      addMessage("Cambio eliminado con exito!")
+      toast.success("Cambio eliminado con exito!")
 
       navigate("../");
     } catch(err) {
@@ -89,7 +87,6 @@ export  function ExchangeDetail() {
 
   return (
     <section>
-      <ToastContainer />
       <ComeBackLink />
       
       <h1 className="text-3xl font-medium">Editando cambio {exchange?.name}</h1>
