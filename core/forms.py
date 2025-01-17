@@ -12,7 +12,7 @@ from django.contrib.auth.forms import (
 from django import forms
 from .models import (
     User,
-    ProfitExpectedMargin
+    SelectionCalculationPreferences
 )
 
 # default admin panel
@@ -69,12 +69,12 @@ class UserNewForm(forms.ModelForm):
 
 class ProfitExpectedMarginAdminForm(forms.ModelForm):
     class Meta:
-        model = ProfitExpectedMargin
+        model = SelectionCalculationPreferences
         fields = '__all__'
 
     def clean(self):
         max_instancias = 1
         if self.instance.pk is None:
-            if ProfitExpectedMargin.objects.count() >= max_instancias:
+            if SelectionCalculationPreferences.objects.count() >= max_instancias:
                 raise ValidationError(f"Solo se permiten {max_instancias} instancias de este modelo.")
         return super().clean()

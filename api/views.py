@@ -21,7 +21,7 @@ from core.p2p_api import (
 
 from core.models import (
     Currency,
-    ProfitExpectedMargin
+    SelectionCalculationPreferences
 )
 
 from .serializers import (
@@ -32,8 +32,13 @@ from .serializers import (
 from .utils import FIAT_OPTIONS
 
 class ProfitExpectedMarginViewSet(viewsets.ModelViewSet):
-    queryset = ProfitExpectedMargin.objects.all()
+    queryset = SelectionCalculationPreferences.objects.all()
     serializer_class = ProfitExpectedMarginSerializer
+
+    def list(self, request):
+        object = self.queryset.first()
+        serializer = self.serializer_class(object)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CurrencyAvailable(APIView):
     def get(self, request, *args, **kwargs):
@@ -70,10 +75,8 @@ class MonedasAPIView(APIView):
         initial_time = time.time()
 
         currencies = Currency.objects.all()
-        profit_margin = ProfitExpectedMargin.objects.first()
+        preferences = SelectionCalculationPreferences.objects.first()
         
-        porcentage = profit_margin.porcentage if profit_margin else 0.04 
-        print(porcentage)
         serializer = CurrencySerializer(currencies, many=True)
         operations = serializer.data
 
@@ -83,15 +86,15 @@ class MonedasAPIView(APIView):
         rates_to_ves = get_multiple_rates_to_ves(
             ves_prices=sell_prices["VES"],
             buy_prices=buy_prices,
-            margin_calculation_params={"profit_margin":porcentage},
-            selection_params={"price_position":3}
+            margin_calculation_params={"profit_margin":preferences.profitMargin},
+            selection_params={"price_position":preferences.referencePricePosition}
         )
 
         rates_from_ves = get_multiple_rates_from_ves(
             ves_prices=buy_prices["VES"],
             sell_prices=sell_prices,
-            margin_calculation_params={"profit_margin":porcentage},
-            selection_params={"price_position":3}
+            margin_calculation_params={"profit_margin":preferences.profitMargin},
+            selection_params={"price_position":preferences.referencePricePosition}
         )
 
 
@@ -102,8 +105,8 @@ class MonedasAPIView(APIView):
                 "time": response_time,
                 "rates_to_ves": rates_to_ves,
                 "rates_from_ves": rates_from_ves,
-                "profit_margin":porcentage * 100,
-                "selected_position":3 
+                "profit_margin":preferences.profitMargin * 100,
+                "selected_position":preferences.referencePricePosition 
             },
             status=status.HTTP_200_OK,
         )

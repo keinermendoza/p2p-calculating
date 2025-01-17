@@ -13,7 +13,8 @@ import './charts/ChartjsConfig';
 import DashboardLayout from './layouts/DashboardLayout';
 
 import { CurrencyFollow, CurrencyCreate, CurrencyDetail } from './pages/currencies';
-import { ExchangeList, ExchangeCreate, ExchangeDetail } from './pages/exchanges';
+import { Preferences } from './pages/calculation/Preferences';
+// import { ExchangeList, ExchangeCreate, ExchangeDetail } from './pages/exchanges';
 import { Info } from './pages/info/Info';
 import { Social } from './pages/social/Social';
 import Index from './pages/Index';
@@ -45,6 +46,10 @@ function App() {
             <Route path="registrar" element={<CurrencyCreate />} />
             <Route path=":id" element={<CurrencyDetail />} />
 
+          </Route> 
+
+          <Route path="preferencias"  >
+            <Route index element={<Preferences />} />
           </Route> 
 
           {/*

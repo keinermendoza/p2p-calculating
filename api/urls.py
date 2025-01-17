@@ -4,7 +4,7 @@ from . import views
 app_name = "api"
 
 router = DefaultRouter()
-router.register(r'profit-margin', views.ProfitExpectedMarginViewSet, basename='profit')
+router.register(r'selection-calculation-preferences', views.ProfitExpectedMarginViewSet, basename='preferences')
 
 urlpatterns = [
     path('exchanges/', views.MonedasAPIView.as_view(), name="exchanges"),

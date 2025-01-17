@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from core.models import (
     Currency,
-    ProfitExpectedMargin
+    SelectionCalculationPreferences
 )
 from .utils import FIAT_OPTIONS
 # https://www.django-rest-framework.org/api-guide/serializers/#accessing-the-initial-data-and-instance
@@ -86,7 +86,7 @@ class CurrencySerializer(RejectExtraFieldsSerializer, serializers.ModelSerialize
 
 class ProfitExpectedMarginSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProfitExpectedMargin
+        model = SelectionCalculationPreferences
         fields = '__all__'
 
     def validate(self, data):
@@ -94,6 +94,11 @@ class ProfitExpectedMarginSerializer(serializers.ModelSerializer):
 
         request = self.context.get('request')
         if request.method == "POST":
-            if ProfitExpectedMargin.objects.count() >= max_instancias:
+            if SelectionCalculationPreferences.objects.count() >= max_instancias:
                 raise serializers.ValidationError(f"Solo se permiten {max_instancias} instancias de este modelo.")
         return super().validate(data)
+    
+    def validate_profitMargin(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("No puede ser menor o igual que 0")
+        return round(value / 100, 2)

@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from .models import (
     User,
     Currency,
-    ProfitExpectedMargin
+    SelectionCalculationPreferences
 )
 
 from .forms import (
@@ -33,9 +33,9 @@ class CurrencyAdmin(admin.ModelAdmin):
     list_display = ["name", "code", "created"]
 
 
-@admin.register(ProfitExpectedMargin)
+@admin.register(SelectionCalculationPreferences)
 class ProfitExpectedMarginAdmin(admin.ModelAdmin):
     form = ProfitExpectedMarginAdminForm
-    list_display = ["porcentage", "created", "updated"]
+    list_display = ["profitMargin", "referencePricePosition", "updated"]
 
 
