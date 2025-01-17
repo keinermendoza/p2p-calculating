@@ -83,12 +83,15 @@ class MonedasAPIView(APIView):
         rates_to_ves = get_multiple_rates_to_ves(
             ves_prices=sell_prices["VES"],
             buy_prices=buy_prices,
-            margin_expected_profit=porcentage
+            margin_calculation_params={"profit_margin":porcentage},
+            selection_params={"price_position":3}
         )
+
         rates_from_ves = get_multiple_rates_from_ves(
             ves_prices=buy_prices["VES"],
             sell_prices=sell_prices,
-            margin_expected_profit=porcentage
+            margin_calculation_params={"profit_margin":porcentage},
+            selection_params={"price_position":3}
         )
 
 
@@ -99,7 +102,8 @@ class MonedasAPIView(APIView):
                 "time": response_time,
                 "rates_to_ves": rates_to_ves,
                 "rates_from_ves": rates_from_ves,
-                "profit_margin":porcentage * 100 
+                "profit_margin":porcentage * 100,
+                "selected_position":3 
             },
             status=status.HTTP_200_OK,
         )

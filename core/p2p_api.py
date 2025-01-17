@@ -85,7 +85,7 @@ def get_positional_price(
     prices: List[Decimal], price_position: int = 3, decimals: int = 2
 ) -> Decimal:
     return round(Decimal(prices[price_position - 1]), decimals)
-
+    
 
 def get_exchange_rate(
     origin_currency_prices: List[Decimal],
@@ -175,8 +175,8 @@ def get_rate_to_ves(
     destination_currency: str = "VES",
     margin_calculation_params: dict = {},
     apply_margin_calculation_to_destination: bool = True,
-    destination_selection_params: dict = {},
-    origin_selection_params: dict = {},
+    destination_selection_params: dict = {"price_position": 3, "decimals": 2},
+    origin_selection_params: dict = {"price_position": 3, "decimals": 2},
     decimals: int = 3,
 ) -> dict:
     """Implementation of get_exchange_rate for Send money to VES"""
@@ -218,8 +218,8 @@ def get_rate_from_ves(
     margin_calculation_params: dict = {},
     origin_currency: str = "VES",
     apply_margin_calculation_to_destination: bool = False,
-    destination_selection_params: dict = {},
-    origin_selection_params: dict = {},
+    destination_selection_params: dict = {"price_position": 3, "decimals": 2},
+    origin_selection_params: dict = {"price_position": 3, "decimals": 2},
     decimals: int = 3,
 ) -> dict:
     """Implementation of get_exchange_rate for Send money to VES"""
@@ -264,12 +264,13 @@ def fetch_prices_thread_pool(operations, trade_type="SELL"):
         )
 
         return {k: v for d in prices_list for k, v in d.items()}
-
+    
 
 def get_multiple_rates_from_ves(
     ves_prices: List[Decimal],
     sell_prices: Dict[str, Decimal],
-    margin_expected_profit: float | Decimal
+    selection_params: dict = {},
+    margin_calculation_params: dict = {}
 
 ) -> List[dict]:
     """Implementation of get_rate_from_ves for multiple currencies
@@ -283,7 +284,9 @@ def get_multiple_rates_from_ves(
                     destination_currency=code,
                     origin_currency_prices=ves_prices,
                     destination_currency_prices=sell_prices[code],
-                    margin_calculation_params={"profit_margin":margin_expected_profit}
+                    destination_selection_params=selection_params,
+                    origin_selection_params=selection_params,
+                    margin_calculation_params=margin_calculation_params
                 )
             )
     return rates_from_ves
@@ -292,7 +295,9 @@ def get_multiple_rates_from_ves(
 def get_multiple_rates_to_ves(
     ves_prices: List[Decimal],
     buy_prices: Dict[str, Decimal],
-    margin_expected_profit: float | Decimal
+    selection_params: dict = {},
+    margin_calculation_params: dict = {}
+
 ) -> List[dict]:
     """Implementation of get_rate_to_ves for multiple currencies
     buy_prices can include VES prices, this will be safetly ignored
@@ -305,7 +310,9 @@ def get_multiple_rates_to_ves(
                     origin_currency=code,
                     origin_currency_prices=buy_prices[code],
                     destination_currency_prices=ves_prices,
-                    margin_calculation_params={"profit_margin":margin_expected_profit}
+                    destination_selection_params=selection_params,
+                    origin_selection_params=selection_params,
+                    margin_calculation_params=margin_calculation_params
                 )
             )
     return rates_to_ves

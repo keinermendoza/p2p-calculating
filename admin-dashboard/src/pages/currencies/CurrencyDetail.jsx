@@ -6,7 +6,7 @@ import { fetchPost, getCookie } from "../../services/fetchPost";
 import { CardAction, CardFooter, PrimaryButton, SimpleCard } from "../../components/ui";
 import {ImageField, inputTextStyle, darkStyles} from "../../components/forms";
 import {ModalDelete} from "../../components/ModalDelete";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { ComeBackLink } from "../../components/ComeBackLink";
 import Select from 'react-select';
 
@@ -154,6 +154,7 @@ export  function CurrencyDetail() {
             className="rounded-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             {...register("transAmount", 
               {
+                valueAsNumber: true,
                 min: {value: 0, message: "el valor debe ser postivo"},
                 max: {value: 999999999999, message: "el valor es demasiado alto"},
               }

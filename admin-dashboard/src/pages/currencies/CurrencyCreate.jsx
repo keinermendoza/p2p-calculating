@@ -15,22 +15,16 @@ export  function CurrencyCreate() {
   const navigate = useNavigate();
   const { register, handleSubmit, setValue, control, formState: { errors, isSubmitting } } = useForm();
 
-  
   const onSubmit = async (data) => {
-
-  
-    // const formData = new FormData();
-    // Object.entries(data).forEach(([key, value]) => formData.append(key, value));
     const responseData = await fetchPost("/api/currencies/", data);
-    
     if (!responseData.errors) {
       toast.success("Moneda agregada con exito!");
       navigate("../" + responseData.id);
     } else {
       toast.error("No fue posible agregar la moneda");
-
     }
   }
+
   return (
     <section>
       <ComeBackLink />
@@ -77,7 +71,9 @@ export  function CurrencyCreate() {
                         classNames={{
                           control: (state) => "p-0.5 rounded-md placeholder:text-gray-100  " + darkStyles,
                           input: (state) => "text-white  dark:text-white placeholder:text-red-400",
-                          option: (state) => state.isSelected ? "bg-blue-400 dark:bg-indigo-600" : "hover:bg-slate-400 dark:hover:bg-slate-800",
+                          option: (state) => 
+                          state.isSelected ? "bg-blue-400 dark:bg-indigo-600" 
+                          : state.isFocused ? "bg-slate-300 dark:bg-slate-800" : "",
                           menuList: (state) => "dark:text-white " + darkStyles,
                         }}
 
