@@ -7,7 +7,7 @@ Chart.register(CategoryScale);
 
 export default function Detail({data, setIsDetailView}) {
   const bgBase = 'rgba(54, 162, 235, 0.8)';
-  const bgSelected= 'rgba(255, 99, 132, 0.8)';
+  const bgSelected= 'rgba(162, 230, 54, 1)';
   const bgOrigin = data.exchange.origin_prices.map(() => bgBase); // Colores por defecto
   const bgDestination = data.exchange.destination_prices.map(() => bgBase);
 

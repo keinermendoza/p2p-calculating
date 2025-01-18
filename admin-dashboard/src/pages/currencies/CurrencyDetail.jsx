@@ -2,14 +2,13 @@ import { useEffect } from "react";
 import { useParams, NavLink, useNavigate } from "react-router";
 import { useForm, Controller } from "react-hook-form";
 import { useFetchGet} from '../../hooks/fetcher';
-import { fetchPost, getCookie } from "../../services/fetchPost";
+import { fetchPost, getCookie, showFieldErrorsOrGetErrorMessage } from "../../services/fetchPost";
 import { CardAction, CardFooter, PrimaryButton, SimpleCard } from "../../components/ui";
 import {ImageField, inputTextStyle, darkStyles} from "../../components/forms";
 import {ModalDelete} from "../../components/ModalDelete";
 import { toast } from 'react-toastify';
 import { ComeBackLink } from "../../components/ComeBackLink";
 import Select from 'react-select';
-
 
 export  function CurrencyDetail() {
   let { id } = useParams();
@@ -19,24 +18,37 @@ export  function CurrencyDetail() {
 
   const {data:currency, loading, error} = useFetchGet(endpoint);
   console.log(currency)
-  const { register, handleSubmit, setValue, control, formState: { errors, isSubmitting } } = useForm();
-  
+  const { register, handleSubmit, setValue, setError, control, formState: { errors, isSubmitting } } = useForm();
   const onSubmit = async (data) => {
-    console.log(data)
-    if (data.transAmount === 0 || data.transAmount === null )  {
-      console.log("eliminando...")
+  
+    if (!data.transAmount)  {
       delete data.transAmount;
+    }
+    if (data?.payTypes?.length === 0) {
+      delete data.payTypes;
     }
 
     const response = await fetchPost(endpoint, {filters: data}, "PATCH");
 
-    if (!response.errors) {
+    if (response.errors) {
+      if (!response.errors.filters) {
+        toast.error(response.errors);
+      }
+      else if (response.errors.filters) {
+        const notRelatedError = showFieldErrorsOrGetErrorMessage(response.errors.filters, data, setError)
+        const toastMessage = typeof(errorMessageNoRelated) === 'str' ? errorMessageNoRelated : "No fue posible actualizar los filtros" 
+        toast.error(toastMessage);
+      }  
+      // const errorMessageNoRelated = showFieldErrorsOrGetErrorMessage(response, data, setError)
+      // if(errorMessageNoRelated) {
+      //   const toastMessage = typeof(errorMessageNoRelated) === 'str' ? errorMessageNoRelated : "No fue posible actualizar los filtros" 
+      //   toast.error(toastMessage);
+      // }
+    } else {
       toast.success("Filtros actualizados con exito!");
       navigate("../");
-    } else {
-      toast.error("No fue posible actualizar los filtros");
-
     }
+
 
   }
 

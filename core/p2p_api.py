@@ -1,6 +1,6 @@
 from typing import List, Dict, Tuple, Callable
 from decimal import getcontext as decimal_getcontext, Decimal, ROUND_DOWN
-
+from django.core.exceptions import ValidationError
 import requests
 from copy import copy
 from concurrent.futures import ThreadPoolExecutor
@@ -62,12 +62,14 @@ def get_prices(
         {"tradeType": trade_type, "fiat": currency, "asset": asset, **kwargs}
     )
 
-    # print(payload)
-
     response = requests.post(SEARCH_API, headers=HEADERS, json=payload)
     data = response.json()
 
     return {currency: [Decimal(adv["adv"]["price"]) for adv in data["data"]]}
+
+    # if not prices[currency]:
+    #     raise ValidationError("prices list is empty")
+    # return prices 
 
 def get_trade_methods(currency: str) -> List[str]:
     """Retrives the available trade Methods for a currency 
@@ -82,8 +84,11 @@ def get_trade_methods(currency: str) -> List[str]:
 
 
 def get_positional_price(
-    prices: List[Decimal], price_position: int = 3, decimals: int = 2
+    prices: List[Decimal], price_position: int, decimals: int = 2
 ) -> Decimal:
+    # print(f"{price_position=}, {prices=}")
+    if len(prices) < price_position:
+        price_position = len(prices) 
     return round(Decimal(prices[price_position - 1]), decimals)
     
 
@@ -175,11 +180,25 @@ def get_rate_to_ves(
     destination_currency: str = "VES",
     margin_calculation_params: dict = {},
     apply_margin_calculation_to_destination: bool = True,
-    destination_selection_params: dict = {"price_position": 3, "decimals": 2},
-    origin_selection_params: dict = {"price_position": 3, "decimals": 2},
+    destination_selection_params: dict = {},
+    origin_selection_params: dict = {},
     decimals: int = 3,
 ) -> dict:
     """Implementation of get_exchange_rate for Send money to VES"""
+
+
+    if not origin_currency_prices or not destination_currency_prices:
+        return {
+            "origin_currency": origin_currency,
+            "destination_currency": destination_currency,
+            "origin_prices": [],
+            "origin_reference_price": None,
+            "destination_prices": [],
+            "destination_reference_price": None,
+            "calculated_price": None,
+            "rate": None,
+        # "profit_margin":profit_margin,
+    }
 
     calculation: dict = get_exchange_rate(
         origin_currency_prices=origin_currency_prices,
@@ -196,12 +215,13 @@ def get_rate_to_ves(
     # this is may not be thebest solution
     # profit_margin = margin_calculation_params["profit_margin"]
 
+
     return {
         "origin_currency": origin_currency,
         "destination_currency": destination_currency,
-        "origin_prices": origin_currency_prices[:5],
+        "origin_prices": origin_currency_prices,
         "origin_reference_price": calculation["origin_reference_price"],
-        "destination_prices": destination_currency_prices[:5],
+        "destination_prices": destination_currency_prices,
         "destination_reference_price": calculation["destination_reference_price"],
         "calculated_price": calculation["calculated_price"],
         # "profit_margin":profit_margin,
@@ -218,11 +238,24 @@ def get_rate_from_ves(
     margin_calculation_params: dict = {},
     origin_currency: str = "VES",
     apply_margin_calculation_to_destination: bool = False,
-    destination_selection_params: dict = {"price_position": 3, "decimals": 2},
-    origin_selection_params: dict = {"price_position": 3, "decimals": 2},
+    destination_selection_params: dict = {},
+    origin_selection_params: dict = {},
     decimals: int = 3,
 ) -> dict:
     """Implementation of get_exchange_rate for Send money to VES"""
+
+    if not origin_currency_prices or not destination_currency_prices:
+        return {
+            "origin_currency": origin_currency,
+            "destination_currency": destination_currency,
+            "origin_prices": [],
+            "origin_reference_price": None,
+            "destination_prices": [],
+            "destination_reference_price": None,
+            "calculated_price": None,
+            "rate": None,
+        # "profit_margin":profit_margin,
+        }
 
     calculation: dict = get_exchange_rate(
         origin_currency_prices=origin_currency_prices,
@@ -242,9 +275,9 @@ def get_rate_from_ves(
     return {
         "origin_currency": origin_currency,
         "destination_currency": destination_currency,
-        "origin_prices": origin_currency_prices[:5],
+        "origin_prices": origin_currency_prices,
         "origin_reference_price": calculation["origin_reference_price"],
-        "destination_prices": destination_currency_prices[:5],
+        "destination_prices": destination_currency_prices,
         "destination_reference_price": calculation["destination_reference_price"],
         "calculated_price": calculation["calculated_price"],
         "rate": calculation["rate"],

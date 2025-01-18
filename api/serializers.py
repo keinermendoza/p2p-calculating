@@ -23,7 +23,6 @@ class RejectExtraFieldsSerializer(serializers.BaseSerializer):
 class CurrencyFiltersSerializer(RejectExtraFieldsSerializer, serializers.Serializer):
     payTypes = serializers.ListField(
         max_length=10,
-        allow_empty=True,
         required=False,
         error_messages={
             "max_length": "payTypes acepta hasta 10 metodos.",

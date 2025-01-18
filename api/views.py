@@ -1,14 +1,12 @@
-from typing import Callable
 import time
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+
 from rest_framework import (
     status,
-    viewsets,
-    serializers
+    viewsets
 )
-
 
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -32,23 +30,12 @@ from .serializers import (
     ProfitExpectedMarginSerializer
 )
 
-from .utils import FIAT_OPTIONS
+from .utils import (
+    FIAT_OPTIONS,
+    default_response_or_custom_error
+)
 
-def custom_error_format_response(errors_dict : dict):
-    """reformating errors and return one level deep object json response 
-    """
-    new_error_dict = {}
-    for field_name, field_errors in errors_dict.items():
-        if isinstance(field_errors, dict):
-            for n_field_name, n_field_errors in field_errors.items():
-                if isinstance(n_field_errors, list):
-                    new_error_dict[field_name] = n_field_errors[0]
-                    break
-                new_error_dict[field_name] =  field_errors[n_field_name]
-                break
-        else:
-            new_error_dict[field_name] = field_errors[0]
-    return Response({"errors": new_error_dict}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProfitExpectedMarginViewSet(viewsets.ModelViewSet):
     queryset = SelectionCalculationPreferences.objects.all()
@@ -58,6 +45,15 @@ class ProfitExpectedMarginViewSet(viewsets.ModelViewSet):
         object = self.queryset.first()
         serializer = self.serializer_class(object)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def create(self, request, *args, **kwargs):
+        return default_response_or_custom_error(request, super().create, *args,**kwargs)
+    
+    def update(self, request, *args, **kwargs):
+        return default_response_or_custom_error(request, super().update, *args,**kwargs)
+    
+    def partial_update(self, request, *args, **kwargs):
+        return default_response_or_custom_error(request, super().partial_update, *args, **kwargs)
 
 class CurrencyAvailable(APIView):
     def get(self, request, *args, **kwargs):
@@ -71,11 +67,7 @@ class CurrencyAPIListCreate(ListCreateAPIView):
     serializer_class = CurrencySerializer
 
     def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except serializers.ValidationError as e:
-            errors = e.detail 
-        return custom_error_format_response(errors)
+        return default_response_or_custom_error(request, super().create, *args,**kwargs)
 
 
 class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
@@ -93,12 +85,12 @@ class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
             "currency" :serializer.data
         })
     
+    def update(self, request, *args, **kwargs):
+        return default_response_or_custom_error(request, super().update, *args,**kwargs)
+    
     def partial_update(self, request, *args, **kwargs):
-        try:
-            return super().partial_update(request, *args, **kwargs)
-        except serializers.ValidationError as e:
-            errors = e.detail 
-        return custom_error_format_response(errors)
+        return default_response_or_custom_error(request, super().partial_update, *args, **kwargs)
+
 
     
     
@@ -106,7 +98,7 @@ class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
 
 
 class MonedasAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         initial_time = time.time()

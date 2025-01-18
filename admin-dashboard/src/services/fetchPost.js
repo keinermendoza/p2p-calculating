@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+
 const defaultErrorMessage = "Ocurrió un error, si el error continúa por favor recarga la página";
 
 export async function fetchPostForm(endpoint, body, method="POST") {
@@ -78,4 +80,35 @@ export function getCookie(name) {
     }
   }
   return cookieValue;
+}
+
+
+// function showErrors(keys, errorObj) {
+//   Object.keys(errorObj).forEach(key => {
+//     if(keys.includes(key)) {
+//       console.log(key, errorObj[key])
+//       setError(key, { type: "server", message: errorObj[key] })
+//     } else {
+//       toast.error(errorObj[key]);
+//     }
+//   });
+// }
+
+
+/* uses react-hook-form setError for set errors in the form  
+if the key error is not part of the request payload returns the error message else returns null
+*/
+export function showFieldErrorsOrGetErrorMessage(errorDict, requestPayload, reactHookSetError) {
+    const payloadKeys = Object.keys(requestPayload);
+    
+    Object.keys(errorDict).forEach(key => {
+      if(payloadKeys.includes(key)) {
+        console.log(key, errorDict[key])
+        reactHookSetError(key, { type: "server", message: errorDict[key] })
+      } else {
+        return errorDict[key]
+      }
+    });
+
+    return null;
 }
