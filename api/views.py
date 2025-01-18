@@ -3,8 +3,11 @@ import time
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import (
+    status,
+    viewsets,
+    serializers
+)
 
 
 from rest_framework.generics import (
@@ -31,6 +34,22 @@ from .serializers import (
 
 from .utils import FIAT_OPTIONS
 
+def custom_error_format_response(errors_dict : dict):
+    """reformating errors and return one level deep object json response 
+    """
+    new_error_dict = {}
+    for field_name, field_errors in errors_dict.items():
+        if isinstance(field_errors, dict):
+            for n_field_name, n_field_errors in field_errors.items():
+                if isinstance(n_field_errors, list):
+                    new_error_dict[field_name] = n_field_errors[0]
+                    break
+                new_error_dict[field_name] =  field_errors[n_field_name]
+                break
+        else:
+            new_error_dict[field_name] = field_errors[0]
+    return Response({"errors": new_error_dict}, status=status.HTTP_400_BAD_REQUEST)
+
 class ProfitExpectedMarginViewSet(viewsets.ModelViewSet):
     queryset = SelectionCalculationPreferences.objects.all()
     serializer_class = ProfitExpectedMarginSerializer
@@ -51,6 +70,13 @@ class CurrencyAPIListCreate(ListCreateAPIView):
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializer
 
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except serializers.ValidationError as e:
+            errors = e.detail 
+        return custom_error_format_response(errors)
+
 
 class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
     queryset = Currency.objects.all()
@@ -66,6 +92,17 @@ class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
             "tradeMethods":trade_methods,
             "currency" :serializer.data
         })
+    
+    def partial_update(self, request, *args, **kwargs):
+        try:
+            return super().partial_update(request, *args, **kwargs)
+        except serializers.ValidationError as e:
+            errors = e.detail 
+        return custom_error_format_response(errors)
+
+    
+    
+
 
 
 class MonedasAPIView(APIView):

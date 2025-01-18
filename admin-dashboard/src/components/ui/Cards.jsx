@@ -16,7 +16,7 @@ export const OutlinedCard =({children, padding="md", hasHover=null}) => {
 
 export const RowInfo = ({children}) => {
   return (
-    <div className="p-2 dark:bg-indigo-950 bg-indigo-200 rounded-md flex gap-4 items-center justify-between">
+    <div className="p-2 dark:bg-indigo-950 bg-slate-100 rounded-md flex gap-4 items-center justify-between">
       {children}
     </div>
   )

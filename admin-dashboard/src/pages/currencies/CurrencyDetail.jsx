@@ -18,10 +18,16 @@ export  function CurrencyDetail() {
   
 
   const {data:currency, loading, error} = useFetchGet(endpoint);
+  console.log(currency)
   const { register, handleSubmit, setValue, control, formState: { errors, isSubmitting } } = useForm();
   
   const onSubmit = async (data) => {
     console.log(data)
+    if (data.transAmount === 0 || data.transAmount === null )  {
+      console.log("eliminando...")
+      delete data.transAmount;
+    }
+
     const response = await fetchPost(endpoint, {filters: data}, "PATCH");
 
     if (!response.errors) {

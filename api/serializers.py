@@ -40,8 +40,7 @@ class CurrencyFiltersSerializer(RejectExtraFieldsSerializer, serializers.Seriali
     )
     transAmount = serializers.IntegerField(
         required=False,  # No es obligatorio
-        allow_null=True,  # Permite el valor null
-        min_value=0,  # Si necesitas que sea mayor o igual a 0
+        min_value=1,  # Si necesitas que sea mayor o igual a 0
         error_messages={
             "invalid": "transAmount debe ser un número entero.",
             "min_value": "transAmount debe ser mayor o igual a 0",
