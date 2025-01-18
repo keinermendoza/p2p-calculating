@@ -34,7 +34,7 @@ SEARCH_API = "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search"
 BASIC_PAYLOAD = {
     # "fiat": "VES",
     "page": 1,
-    "rows": 10,
+    "rows": 20,
     # "transAmount": 5000,
     # "tradeType": "SELL",
     # "asset": "USDT",
@@ -219,9 +219,9 @@ def get_rate_to_ves(
     return {
         "origin_currency": origin_currency,
         "destination_currency": destination_currency,
-        "origin_prices": origin_currency_prices,
+        "origin_prices": origin_currency_prices[:10],
         "origin_reference_price": calculation["origin_reference_price"],
-        "destination_prices": destination_currency_prices,
+        "destination_prices": destination_currency_prices[:10],
         "destination_reference_price": calculation["destination_reference_price"],
         "calculated_price": calculation["calculated_price"],
         # "profit_margin":profit_margin,
@@ -275,9 +275,9 @@ def get_rate_from_ves(
     return {
         "origin_currency": origin_currency,
         "destination_currency": destination_currency,
-        "origin_prices": origin_currency_prices,
+        "origin_prices": origin_currency_prices[:10],
         "origin_reference_price": calculation["origin_reference_price"],
-        "destination_prices": destination_currency_prices,
+        "destination_prices": destination_currency_prices[:10],
         "destination_reference_price": calculation["destination_reference_price"],
         "calculated_price": calculation["calculated_price"],
         "rate": calculation["rate"],
