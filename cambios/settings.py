@@ -14,6 +14,7 @@ from django.urls import reverse_lazy
 from pathlib import Path
 from dotenv import load_dotenv
 from os import getenv
+from django.utils.module_loading import import_string
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
@@ -141,10 +142,57 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# https://docs.djangoproject.com/en/5.1/topics/logging/
+# https://www.reddit.com/r/django/comments/121ozj6/howto_django_logging_basics/
+# https://stackoverflow.com/questions/64268405/django-how-can-i-log-client-ip-address
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "maxBytes": 1024000,
+            "backupCount": 8,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR / "logs/app.log",
+            'formatter': 'verbose',
+        },
+        "null": {"level": "DEBUG", "class": "logging.NullHandler"},
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.security.DisallowedHost": {
+            "handlers": ["null"],
+            "propagate": False,
+        },
+        'core': {  
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'api': {  
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
 DJANGO_VITE = {
   "default": {
     "dev_mode": DEBUG,
-    "static_url_prefix":"vendor"
+    "static_url_prefix":  "" if DEBUG else "vendor"
   }
 }
 
@@ -162,9 +210,3 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
-
-
-# CORS_ALLOWED_ORIGINS = [
-#     "http://127.0.0.1:5173",
-#     "http://localhost:5173",
-# ]

@@ -12,3 +12,4 @@ server/
 vendor
 dist
 static
+logs
