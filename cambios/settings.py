@@ -144,7 +144,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DJANGO_VITE = {
   "default": {
     "dev_mode": DEBUG,
-    # "static_url_prefix":"vendor"
+    "static_url_prefix":"vendor"
   }
 }
 

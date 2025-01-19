@@ -34,11 +34,11 @@ export  function CurrencyDetail() {
       if (!response.errors.filters) {
         toast.error(response.errors);
       }
-      else if (response.errors.filters) {
-        const notRelatedError = showFieldErrorsOrGetErrorMessage(response.errors.filters, data, setError)
-        const toastMessage = typeof(errorMessageNoRelated) === 'str' ? errorMessageNoRelated : "No fue posible actualizar los filtros" 
-        toast.error(toastMessage);
-      }  
+      // else if (response.errors.filters) {
+      //   const notRelatedError = showFieldErrorsOrGetErrorMessage(response.errors.filters, data, setError)
+      //   const toastMessage = typeof(errorMessageNoRelated) === 'str' ? errorMessageNoRelated : "No fue posible actualizar los filtros" 
+      //   toast.error(toastMessage);
+      // }  
       // const errorMessageNoRelated = showFieldErrorsOrGetErrorMessage(response, data, setError)
       // if(errorMessageNoRelated) {
       //   const toastMessage = typeof(errorMessageNoRelated) === 'str' ? errorMessageNoRelated : "No fue posible actualizar los filtros" 

@@ -30,7 +30,7 @@ class Currency(UseTimeStamps):
 class SelectionCalculationPreferences(UseTimeStamps):
 
     profitMargin = models.DecimalField(
-        "Margen de Ganáncia", decimal_places=2, max_digits=6
+        "Margen de Ganáncia", decimal_places=2, max_digits=6, default=0.04
     )
     referencePricePosition = models.IntegerField(
         "Posición Precios de Referencia",
