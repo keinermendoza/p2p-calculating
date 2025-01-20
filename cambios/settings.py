@@ -164,6 +164,14 @@ LOGGING = {
             "filename": BASE_DIR / "logs/app.log",
             'formatter': 'verbose',
         },
+        "access_file": {
+            "level": "INFO",
+            "maxBytes": 1024000,
+            "backupCount": 8,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR / "logs/api-access.log",
+            'formatter': 'verbose',
+        },
         "null": {"level": "DEBUG", "class": "logging.NullHandler"},
     },
     "loggers": {
@@ -177,12 +185,12 @@ LOGGING = {
             "propagate": False,
         },
         'core': {  
-            'handlers': ['file'],
+            'handlers': ['access_file'],
             'level': 'INFO',
             'propagate': False,
         },
         'api': {  
-            'handlers': ['file'],
+            'handlers': ['access_file'],
             'level': 'INFO',
             'propagate': False,
         },

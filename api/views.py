@@ -1,4 +1,6 @@
 import time
+import logging
+
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -35,6 +37,8 @@ from .utils import (
     default_response_or_custom_error
 )
 
+
+logger = logging.getLogger(__name__)
 
 
 class ProfitExpectedMarginViewSet(viewsets.ModelViewSet):
@@ -91,16 +95,11 @@ class CurrencyAPIRUD(RetrieveUpdateDestroyAPIView):
     def partial_update(self, request, *args, **kwargs):
         return default_response_or_custom_error(request, super().partial_update, *args, **kwargs)
 
-
-    
-    
-
-
-
 class MonedasAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+        logger.info(f"user {request.user.id} that is admin requested info")
         initial_time = time.time()
 
         currencies = Currency.objects.all()
